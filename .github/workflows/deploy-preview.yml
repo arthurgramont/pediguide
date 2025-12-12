@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - Pediguide
+name: CI/CD Pipeline - Pediguide - Preview
 
 on:
   push:
