@@ -1,11 +1,21 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import MainLayout from '@/layouts/MainLayout.vue'
+import AuthLayout from '@/layouts/AuthLayout.vue'
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
+import type { Component } from 'vue'
+
+const route = useRoute()
+
+const layouts: Record<string, Component> = {
+  main: MainLayout,
+  auth: AuthLayout,
+}
+const layout = computed(() => layouts[route.meta.layout as string] ?? layouts.main)
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <component :is="layout">
+    <router-view />
+  </component>
 </template>
-
-<style scoped></style>
