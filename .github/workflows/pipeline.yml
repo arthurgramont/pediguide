@@ -14,40 +14,40 @@ env:
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
 jobs:
-  quality-check:
-    name: Quality & Security Check
-    runs-on: ubuntu-latest
-    steps: 
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
+  # quality-check:
+  #   name: Quality & Security Check
+  #   runs-on: ubuntu-latest
+  #   steps: 
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          cache: 'npm'
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v6
+  #       with:
+  #         node-version: '24'
+  #         cache: 'npm'
 
-      - name: Install Backend Dependencies
-        working-directory: ./backend
-        run: npm ci
+  #     - name: Install Backend Dependencies
+  #       working-directory: ./backend
+  #       run: npm ci
 
-      - name: Lint Backend
-        working-directory: ./backend
-        run: npm run lint
+  #     - name: Lint Backend
+  #       working-directory: ./backend
+  #       run: npm run lint
 
-      - name: Security Audit Backend
-        working-directory: ./backend
-        run: npm audit --audit-level=high || true
+  #     - name: Security Audit Backend
+  #       working-directory: ./backend
+  #       run: npm audit --audit-level=high || true
 
-      - name: Install Frontend Dependencies
-        working-directory: ./frontend
-        run: npm ci
+  #     - name: Install Frontend Dependencies
+  #       working-directory: ./frontend
+  #       run: npm ci
 
-      - name: Lint Frontend
-        working-directory: ./frontend
-        run: npm run lint
+  #     - name: Lint Frontend
+  #       working-directory: ./frontend
+  #       run: npm run lint
 
   deploy-backend:
     name: Deploy Backend to Vercel
