@@ -3,8 +3,11 @@ import HeaderMenu from '@/components/menus/HeaderMenu.vue'
 </script>
 
 <template>
-  <main class="flex flex-col min-h-screen px-5 md:px-20">
+  <div class="flex min-h-screen flex-col px-5 md:px-20">
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
     <HeaderMenu />
-    <slot />
-  </main>
+    <main id="main-content" class="flex-1" tabindex="-1">
+      <slot />
+    </main>
+  </div>
 </template>

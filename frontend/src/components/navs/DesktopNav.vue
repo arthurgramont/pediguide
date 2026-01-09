@@ -15,22 +15,22 @@ import IconsUtil from '@/components/utils/IconsUtil.vue'
     <NavigationMenuList>
       <NavigationMenuItem>
         <NavigationMenuLink as-child :class="navigationMenuTriggerStyle()">
-          <RouterLink to="/" tabindex="0">Accueil</RouterLink>
+          <RouterLink to="/">Accueil</RouterLink>
         </NavigationMenuLink>
       </NavigationMenuItem>
       <NavigationMenuItem>
         <NavigationMenuLink as-child :class="navigationMenuTriggerStyle()">
-          <RouterLink to="/diagnosis" tabindex="0">Diagnostic</RouterLink>
+          <RouterLink to="/diagnosis">Diagnostic</RouterLink>
         </NavigationMenuLink>
       </NavigationMenuItem>
       <NavigationMenuItem>
         <NavigationMenuLink as-child :class="navigationMenuTriggerStyle()">
-          <RouterLink to="/login" tabindex="0" class="group/login flex-row gap-2">
+          <RouterLink to="/login" class="group/login flex-row gap-2">
             <IconsUtil
               icon="user-circle"
               widthClass="w-6"
               heightClass="h-6"
-              colorClass="text-foreground group-hover/login:text-accent-foreground group-focus-visible/login:text-accent-foreground transition-colors"
+              colorClass="text-foreground group-hover/login:text-primary group-focus-visible/login:text-primary transition-colors"
             />
             Vous êtes médecin ?
           </RouterLink>

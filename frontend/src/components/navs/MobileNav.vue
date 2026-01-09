@@ -10,13 +10,13 @@ import IconsUtil from '@/components/utils/IconsUtil.vue'
       <button
         type="button"
         aria-label="Ouvrir le menu de navigation"
-        class="flex items-center justify-center p-0 leading-none"
+        class="group flex items-center justify-center rounded-md p-1 leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <IconsUtil
           icon="burger"
           widthClass="w-10"
           heightClass="h-10"
-          colorClass="text-foreground hover:text-primary focus:text-primary transition-colors cursor-pointer"
+          colorClass="text-foreground group-hover:text-primary group-focus-visible:text-primary transition-colors"
         />
       </button>
     </SheetTrigger>
@@ -24,21 +24,21 @@ import IconsUtil from '@/components/utils/IconsUtil.vue'
       <nav class="flex flex-col gap-4 mt-6 p-2">
         <RouterLink
           to="/"
-          class="px-4 py-3 text-lg font-medium hover:bg-muted hover:text-primary focus:text-primary rounded-md transition-colors"
+          class="rounded-md px-4 py-3 text-lg font-medium transition-colors hover:bg-muted hover:text-primary focus-visible:bg-muted focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           Accueil
         </RouterLink>
 
         <RouterLink
           to="/diagnosis"
-          class="px-4 py-3 text-lg font-medium hover:bg-muted hover:text-primary focus:text-primary rounded-md transition-colors"
+          class="rounded-md px-4 py-3 text-lg font-medium transition-colors hover:bg-muted hover:text-primary focus-visible:bg-muted focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
-          Diagnostique
+          Diagnostic
         </RouterLink>
 
         <RouterLink
           to="/login"
-          class="group/login flex items-center gap-1 px-4 py-3 text-lg font-medium hover:bg-muted hover:text-primary focus:text-primary rounded-md transition-colors"
+          class="group/login flex items-center gap-1 rounded-md px-4 py-3 text-lg font-medium transition-colors hover:bg-muted hover:text-primary focus-visible:bg-muted focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <IconsUtil
             icon="user-circle"

@@ -7,15 +7,20 @@ import MobileNav from '@/components/navs/MobileNav.vue'
 
 <template>
   <header
-    class="max-w-7xl w-full mx-auto sticky top-5 z-50 flex justify-between items-center py-2 px-4 border rounded-lg bg-white/70 backdrop-blur-lg shadow-header"
+    class="max-w-7xl w-full mx-auto sticky top-4 z-40 flex justify-between items-center py-1 px-4 border border-border/70 rounded-lg bg-background/80 backdrop-blur-lg shadow-header"
   >
-    <RouterLink to="/" class="flex items-center gap-0.5 cursor-pointer">
-      <img :src="Logo" class="w-10 h-10" alt="PediGuide - Accueil" />
-      <p class="text-2xl font-semibold">PediGuide</p>
+    <RouterLink
+      to="/"
+      class="flex items-center gap-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    >
+      <img :src="Logo" class="w-8 h-8" alt="PediGuide, retour à l'accueil" />
+      <span class="text-xl font-semibold">PediGuide</span>
     </RouterLink>
 
-    <DesktopNav class="hidden md:block" />
-    <MobileNav class="block md:hidden" />
+    <nav aria-label="Navigation principale" class="flex items-center gap-2">
+      <DesktopNav class="hidden md:block" />
+      <MobileNav class="block md:hidden" />
+    </nav>
   </header>
 </template>
 

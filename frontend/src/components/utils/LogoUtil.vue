@@ -4,14 +4,14 @@ interface Props {
   widthClass?: string
   heightClass?: string
   colorClass?: string
+  label?: string
 }
 
-const {
-  logo,
-  widthClass = 'w-14',
-  heightClass = 'h-14',
-  colorClass = 'text-foreground',
-} = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  widthClass: 'w-14',
+  heightClass: 'h-14',
+  colorClass: 'text-foreground',
+})
 
 const icons = import.meta.glob<{ default: string }>('../../assets/*.svg', {
   query: '?raw',
@@ -19,7 +19,7 @@ const icons = import.meta.glob<{ default: string }>('../../assets/*.svg', {
 })
 
 const importedLogo = () => {
-  const logoPath = `../../assets/${logo}.svg`
+  const logoPath = `../../assets/${props.logo}.svg`
   const logoContent = icons[logoPath]?.default
   if (!logoContent) {
     console.warn('No logo found for: ', logoPath)
@@ -31,8 +31,11 @@ const importedLogo = () => {
 
 <template>
   <span
-    :class="[widthClass, heightClass, colorClass]"
+    :class="[props.widthClass, props.heightClass, props.colorClass]"
     class="inline-block"
+    :role="props.label ? 'img' : undefined"
+    :aria-label="props.label"
+    :aria-hidden="props.label ? undefined : 'true'"
     v-html="importedLogo()"
   />
 </template>

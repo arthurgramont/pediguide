@@ -8,9 +8,9 @@ import RegisterForm from '@/components/forms/RegisterForm.vue'
 <template>
   <Card>
     <CardHeader>
-      <CardTitle>Create an account</CardTitle>
+      <CardTitle as="h1">Créer un compte</CardTitle>
       <CardDescription>
-        Enter your information below to create your account
+        Entrez vos informations pour créer votre compte.
       </CardDescription>
     </CardHeader>
     <CardContent>

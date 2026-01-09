@@ -13,8 +13,8 @@ const props = defineProps<{
   <div :class="cn('flex flex-col gap-6', props.class)">
     <Card>
       <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
-        <CardDescription> Enter your information below to create your account </CardDescription>
+        <CardTitle as="h1">Connexion à votre compte</CardTitle>
+        <CardDescription>Entrez vos informations pour vous connecter.</CardDescription>
       </CardHeader>
       <CardContent>
         <LoginForm />
