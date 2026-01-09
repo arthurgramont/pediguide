@@ -1,52 +1,192 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { computed, nextTick, reactive, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
+import { Button } from '@/components/ui/button'
+import { useDiagnosisFormStore } from '@/stores/diagnosisForm'
+import DiagnosisHeader from '@/pages/diagnosis/DiagnosisHeader.vue'
+import DiagnosisStep1 from '@/pages/diagnosis/DiagnosisStep1.vue'
+import DiagnosisStep2 from '@/pages/diagnosis/DiagnosisStep2.vue'
+import DiagnosisStep3 from '@/pages/diagnosis/DiagnosisStep3.vue'
+import DiagnosisStep4 from '@/pages/diagnosis/DiagnosisStep4.vue'
+import DiagnosisStep5 from '@/pages/diagnosis/DiagnosisStep5.vue'
+import {
+  errorId,
+  fieldIds,
+  requiredFieldsByStep,
+  validators,
+  type FormFieldKey,
+} from '@/pages/diagnosis/diagnosisValidation'
 
 const router = useRouter()
-const step = ref(1) // Étape actuelle (1 à 5)
+const formStore = useDiagnosisFormStore()
+const { form } = storeToRefs(formStore)
+
+const totalSteps = 5
+const step = ref(1)
 const isLoading = ref(false)
 const errorMessage = ref('')
+const stepAttempted = ref(false)
 
-// Les données exactes attendues par ton Backend
-const form = reactive({
-  childFirstName: '',
-  childBirthDate: '',
-  consultationReason: '',
-  behaviorChanges: [] as string[],
-  clinicalSigns: [] as string[],
-  duration: '',
-  worryLevel: '',
-  actionsTaken: [] as string[],
-  additionalNotes: ''
-})
+const progress = computed(() => (step.value / totalSteps) * 100)
 
-// Navigation
-const nextStep = () => { if (step.value < 5) step.value++ }
-const prevStep = () => { if (step.value > 1) step.value-- }
+const formatDate = (date: Date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
-// Envoi final
+const maxBirthDate = computed(() => formatDate(new Date()))
+
+const errors = reactive<Partial<Record<FormFieldKey, string>>>({})
+const touched = reactive<Partial<Record<FormFieldKey, boolean>>>({})
+
+const stepHeadingIds: Record<number, string> = {
+  1: 'step-1-title',
+  2: 'step-2-title',
+  3: 'step-3-title',
+  4: 'step-4-title',
+  5: 'step-5-title',
+}
+
+const shouldShowError = (field: FormFieldKey) => Boolean(errors[field])
+  && (touched[field] || stepAttempted.value)
+
+const setFieldError = (field: FormFieldKey) => {
+  const validator = validators[field]
+  const error = validator(form.value[field])
+  if (error) {
+    errors[field] = error
+  } else {
+    delete errors[field]
+  }
+}
+
+const handleFieldBlur = (field: FormFieldKey) => {
+  touched[field] = true
+  setFieldError(field)
+}
+
+const handleFieldInput = (field: FormFieldKey) => {
+  if (touched[field] || stepAttempted.value) {
+    setFieldError(field)
+  }
+}
+
+const handleFieldChange = (field: FormFieldKey) => {
+  touched[field] = true
+  setFieldError(field)
+}
+
+const validateStep = (currentStep: number) => {
+  const requiredFields = requiredFieldsByStep[currentStep] ?? []
+  let isValid = true
+
+  requiredFields.forEach((field) => {
+    const error = validators[field](form.value[field])
+    if (error) {
+      errors[field] = error
+      isValid = false
+    } else {
+      delete errors[field]
+    }
+  })
+
+  return isValid
+}
+
+const focusField = async (field: FormFieldKey) => {
+  await nextTick()
+  const element = document.getElementById(fieldIds[field])
+  if (element instanceof HTMLElement) {
+    element.focus()
+    element.scrollIntoView({ block: 'center' })
+  }
+}
+
+const focusFirstInvalidField = async (currentStep: number) => {
+  const requiredFields = requiredFieldsByStep[currentStep] ?? []
+  const firstInvalidField = requiredFields.find((field) => Boolean(errors[field]))
+  if (firstInvalidField) {
+    await focusField(firstInvalidField)
+  }
+}
+
+const focusStepHeading = async () => {
+  await nextTick()
+  const headingId = stepHeadingIds[step.value]
+  const heading = document.getElementById(headingId)
+  if (heading instanceof HTMLElement) {
+    heading.focus()
+  }
+}
+
+const nextStep = async () => {
+  stepAttempted.value = true
+  const isValid = validateStep(step.value)
+  if (!isValid) {
+    await focusFirstInvalidField(step.value)
+    return
+  }
+
+  stepAttempted.value = false
+  step.value = Math.min(step.value + 1, totalSteps)
+}
+
+const prevStep = () => {
+  stepAttempted.value = false
+  step.value = Math.max(step.value - 1, 1)
+}
+
+const validateAllSteps = () => {
+  const orderedSteps = Object.keys(requiredFieldsByStep)
+    .map(Number)
+    .sort((a, b) => a - b)
+
+  let firstInvalidStep: number | null = null
+
+  orderedSteps.forEach((stepNumber) => {
+    const isValid = validateStep(stepNumber)
+    if (!isValid && firstInvalidStep === null) {
+      firstInvalidStep = stepNumber
+    }
+  })
+
+  return firstInvalidStep
+}
+
 const submitForm = async () => {
-  isLoading.value = true
   errorMessage.value = ''
+  const invalidStep = validateAllSteps()
+
+  if (invalidStep) {
+    step.value = invalidStep
+    stepAttempted.value = true
+    await focusFirstInvalidField(invalidStep)
+    return
+  }
+
+  isLoading.value = true
 
   try {
-    // Adapter l'URL si tu es en local ou sur Vercel
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-    
+
     const res = await fetch(`${apiUrl}/api/diagnosis`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
+      body: JSON.stringify(form.value),
     })
 
     const data = await res.json()
 
-    if (!res.ok) throw new Error(data.error || 'Erreur inconnue')
+    if (!res.ok) {
+      throw new Error(data.error || 'Erreur inconnue')
+    }
 
-    // Succès : On redirige vers une page de succès (ou alerte pour l'instant)
+    formStore.reset()
     alert('Dossier envoyé au médecin avec succès !')
-    router.push('/') 
-
+    router.push('/')
   } catch (error) {
     console.error(error)
     errorMessage.value = "Une erreur est survenue lors de l'envoi."
@@ -54,157 +194,71 @@ const submitForm = async () => {
     isLoading.value = false
   }
 }
+
+watch(step, async () => {
+  if (!stepAttempted.value) {
+    await focusStepHeading()
+  }
+})
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto p-6 bg-white min-h-screen">
-    
-    <div class="mb-8">
-      <h2 class="text-blue-600 font-semibold mb-2">Étape {{ step }} sur 5</h2>
-      <div class="h-2 w-full bg-blue-100 rounded-full">
-        <div class="h-full bg-blue-600 rounded-full transition-all duration-300" :style="{ width: `${(step/5)*100}%` }"></div>
-      </div>
+  <div class="min-h-screen bg-background">
+    <div class="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <section class="rounded-2xl border border-border/70 bg-background p-6 shadow-sm">
+        <DiagnosisHeader :step="step" :total-steps="totalSteps" :progress="progress" />
+
+        <form novalidate @submit.prevent="submitForm" class="mt-8 space-y-6">
+          <DiagnosisStep1
+            v-if="step === 1"
+            :form="form"
+            :errors="errors"
+            :max-birth-date="maxBirthDate"
+            :should-show-error="shouldShowError"
+            :error-id="errorId"
+            @field-blur="handleFieldBlur"
+            @field-input="handleFieldInput"
+          />
+
+          <DiagnosisStep2 v-if="step === 2" :form="form" />
+
+          <DiagnosisStep3
+            v-if="step === 3"
+            :form="form"
+            :errors="errors"
+            :should-show-error="shouldShowError"
+            :error-id="errorId"
+            @field-change="handleFieldChange"
+          />
+
+          <DiagnosisStep4 v-if="step === 4" :form="form" />
+
+          <DiagnosisStep5 v-if="step === 5" :form="form" />
+
+          <div class="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-6">
+            <Button v-if="step > 1" type="button" variant="outline" @click="prevStep">
+              Retour
+            </Button>
+            <span v-else aria-hidden="true"></span>
+
+            <Button v-if="step < totalSteps" type="button" @click="nextStep">
+              Continuer
+            </Button>
+
+            <Button
+              v-else
+              type="submit"
+              :disabled="isLoading"
+            >
+              {{ isLoading ? 'Envoi...' : 'Envoyer mes réponses' }}
+            </Button>
+          </div>
+
+          <p v-if="errorMessage" class="text-center text-sm text-destructive" role="alert">
+            {{ errorMessage }}
+          </p>
+        </form>
+      </section>
     </div>
-
-    <form @submit.prevent="submitForm" class="space-y-6">
-
-      <div v-if="step === 1" class="space-y-4">
-        <h1 class="text-xl font-bold text-blue-900">Préparer la consultation de votre enfant</h1>
-        
-        <div>
-          <label class="block text-sm font-medium mb-1">Prénom de l'enfant *</label>
-          <input v-model="form.childFirstName" type="text" required class="w-full border rounded-lg p-3" placeholder="Ex: Arthur" />
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium mb-1">Date de naissance *</label>
-          <input v-model="form.childBirthDate" type="date" required class="w-full border rounded-lg p-3" />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium mb-1">Qu'est-ce qui vous amène ? *</label>
-          <textarea v-model="form.consultationReason" required rows="3" class="w-full border rounded-lg p-3" placeholder="Ex: Fièvre depuis 2 jours..."></textarea>
-        </div>
-      </div>
-
-      <div v-if="step === 2" class="space-y-6">
-        <h1 class="text-xl font-bold text-blue-900">Ce que vous observez</h1>
-        
-        <div>
-          <p class="font-medium mb-3">Avez-vous remarqué un changement ?</p>
-          <div class="space-y-2">
-            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input type="checkbox" value="Il mange moins que d'habitude" v-model="form.behaviorChanges" class="w-5 h-5 text-blue-600" />
-              <span>Il mange moins que d'habitude</span>
-            </label>
-            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input type="checkbox" value="Il dort moins ou plus que d'habitude" v-model="form.behaviorChanges" class="w-5 h-5 text-blue-600" />
-              <span>Il dort moins ou plus que d'habitude</span>
-            </label>
-            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input type="checkbox" value="Il est plus fatigué" v-model="form.behaviorChanges" class="w-5 h-5 text-blue-600" />
-              <span>Il est plus fatigué</span>
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <p class="font-medium mb-3">Avez-vous observé ces signes ?</p>
-          <div class="space-y-2">
-            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input type="checkbox" value="Fièvre" v-model="form.clinicalSigns" class="w-5 h-5 text-blue-600" />
-              <span>Fièvre</span>
-            </label>
-            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input type="checkbox" value="Toux" v-model="form.clinicalSigns" class="w-5 h-5 text-blue-600" />
-              <span>Toux</span>
-            </label>
-            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input type="checkbox" value="Vomissements" v-model="form.clinicalSigns" class="w-5 h-5 text-blue-600" />
-              <span>Vomissements</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="step === 3" class="space-y-6">
-        <h1 class="text-xl font-bold text-blue-900">Depuis quand et ressenti</h1>
-        
-        <div>
-          <p class="font-medium mb-3">Depuis quand ? *</p>
-          <div class="space-y-2">
-            <label v-for="duree in ['Aujourd\'hui', 'Depuis 1 à 2 jours', 'Depuis plusieurs jours', 'Depuis plus d\'une semaine']" :key="duree" class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer">
-              <input type="radio" :value="duree" v-model="form.duration" class="w-5 h-5 text-blue-600" />
-              <span>{{ duree }}</span>
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <p class="font-medium mb-3">Niveau d'inquiétude *</p>
-          <div class="space-y-2">
-            <label v-for="level in ['Peu inquiétant', 'Moyennement inquiétant', 'Très inquiétant']" :key="level" class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer">
-              <input type="radio" :value="level" v-model="form.worryLevel" class="w-5 h-5 text-blue-600" />
-              <span>{{ level }}</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="step === 4" class="space-y-6">
-        <h1 class="text-xl font-bold text-blue-900">Ce que vous avez déjà fait</h1>
-        <div class="space-y-2">
-            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input type="checkbox" value="J'ai pris la température" v-model="form.actionsTaken" class="w-5 h-5 text-blue-600" />
-              <span>J'ai pris la température</span>
-            </label>
-            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input type="checkbox" value="J'ai donné un médicament" v-model="form.actionsTaken" class="w-5 h-5 text-blue-600" />
-              <span>J'ai donné un médicament</span>
-            </label>
-            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input type="checkbox" value="Rien pour le moment" v-model="form.actionsTaken" class="w-5 h-5 text-blue-600" />
-              <span>Je n'ai rien fait pour le moment</span>
-            </label>
-        </div>
-      </div>
-
-      <div v-if="step === 5" class="space-y-4">
-        <h1 class="text-xl font-bold text-blue-900">Message libre</h1>
-        <p>Souhaitez-vous ajouter autre chose pour le médecin ?</p>
-        <textarea v-model="form.additionalNotes" rows="5" class="w-full border rounded-lg p-3" placeholder="Vous pouvez partager ici tout ce qui vous semble important..."></textarea>
-      </div>
-
-      <div class="flex justify-between pt-6 border-t mt-6">
-        <button 
-          v-if="step > 1" 
-          type="button" 
-          @click="prevStep" 
-          class="px-6 py-2 border border-blue-600 text-blue-600 rounded-lg font-medium"
-        >
-          Retour
-        </button>
-        <div v-else></div> <button 
-          v-if="step < 5" 
-          type="button" 
-          @click="nextStep"
-          class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
-        >
-          Continuer
-        </button>
-
-        <button 
-          v-if="step === 5" 
-          type="submit"
-          :disabled="isLoading" 
-          class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
-        >
-          {{ isLoading ? 'Envoi...' : 'Envoyer mes réponses' }}
-        </button>
-      </div>
-
-      <p v-if="errorMessage" class="text-red-500 text-center mt-4">{{ errorMessage }}</p>
-
-    </form>
   </div>
 </template>
