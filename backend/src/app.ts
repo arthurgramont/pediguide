@@ -6,8 +6,8 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 
 // 👇 IMPORTANT : On utilise les accolades car on a fait des "export const"
-// import { diagnosisRouter } from './routes/diagnosis';
-// import { authRouter } from './routes/auth';
+import { diagnosisRouter } from './routes/diagnosis';
+import { authRouter } from './routes/auth';
 
 console.log("🔄 Initialisation du serveur...");
 
@@ -23,20 +23,14 @@ const app = express();
 app.use(cors({origin: '*'}));
 app.use(express.json());
 
-// Le mouchard
-// app.use((req: Request, res: Response, next) => {
-//   console.log(`📥 REQUÊTE REÇUE : ${req.method} ${req.originalUrl}`);
-//   next();
-// });
-
 // Route de test
 app.get('/ping', (req: Request, res: Response) => {
   res.send('PONG ! Le serveur est vivant.');
 });
 
 // Routes API
-// app.use('/api/diagnosis', diagnosisRouter);
-// app.use('/api/auth', authRouter);
+app.use('/api/diagnosis', diagnosisRouter);
+app.use('/api/auth', authRouter);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
