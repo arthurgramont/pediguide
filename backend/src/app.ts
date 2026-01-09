@@ -1,20 +1,47 @@
-import express, { Request, Response } from 'express'
-import dotenv from "dotenv"
-import cors from "cors"
-import { router } from './routes'
+import dotenv from 'dotenv';
+// 1. D'ABORD : On charge les variables d'environnement
+dotenv.config();
 
-dotenv.config()
-const app = express()
-const port = process.env.PORT || 3000
+import express, { Request, Response } from 'express';
+import cors from 'cors';
 
-app.use(express.json())
-app.use(cors())
-app.use("/api", router)
+// 👇 IMPORTANT : On utilise les accolades car on a fait des "export const"
+// import { diagnosisRouter } from './routes/diagnosis';
+// import { authRouter } from './routes/auth';
 
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(port, () => {
-        console.log(`Server is running on http://localhost:${port}/api`)
-    })
+console.log("🔄 Initialisation du serveur...");
+
+if (!process.env.DATABASE_URL) {
+  console.error("❌ ERREUR FATALE : DATABASE_URL est introuvable dans le .env !");
+  process.exit(1);
+} else {
+  console.log("✅ DATABASE_URL détectée.");
 }
 
-export default app  
+const app = express();
+
+app.use(cors({origin: '*'}));
+app.use(express.json());
+
+// Le mouchard
+// app.use((req: Request, res: Response, next) => {
+//   console.log(`📥 REQUÊTE REÇUE : ${req.method} ${req.originalUrl}`);
+//   next();
+// });
+
+// Route de test
+app.get('/ping', (req: Request, res: Response) => {
+  res.send('PONG ! Le serveur est vivant.');
+});
+
+// Routes API
+// app.use('/api/diagnosis', diagnosisRouter);
+// app.use('/api/auth', authRouter);
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`🚀 Serveur PRÊT sur http://localhost:${port}`);
+    console.log(`👉 Teste moi avec : curl http://localhost:${port}/ping`);
+});
+
+export default app

@@ -5,8 +5,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const connectionString = process.env.DATABASE_URL!;
+if (!process.env.DATABASE_URL) {
+  throw new Error('❌ DATABASE_URL manquante');
+}
 
-const client = postgres(connectionString, { prepare: false });
+const client = postgres(process.env.DATABASE_URL, { prepare: false });
 
+// 👇 IMPÉRATIF : "export const", PAS "export default"
 export const db = drizzle(client, { schema });
