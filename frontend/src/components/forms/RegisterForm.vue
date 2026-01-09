@@ -9,28 +9,51 @@ import { Input } from '@/components/ui/input'
     <FieldGroup>
       <Field>
         <FieldLabel for="rpps-number"> Numéro RPPS </FieldLabel>
-        <Input id="rpps-number" type="text" placeholder="Entrez votre numéro RPPS" required />
+        <Input
+          id="rpps-number"
+          type="text"
+          name="rppsNumber"
+          autocomplete="off"
+          placeholder="Entrez votre numéro RPPS"
+          required
+        />
       </Field>
       <Field>
         <FieldLabel for="email"> Email </FieldLabel>
-        <Input id="email" type="email" placeholder="Entrez votre email" required />
+        <Input
+          id="email"
+          type="email"
+          name="email"
+          autocomplete="email"
+          placeholder="Entrez votre email"
+          required
+        />
       </Field>
       <Field>
         <FieldLabel for="password"> Mot de passe </FieldLabel>
-        <Input id="password" type="password" placeholder="Entrez votre mot de passe" required />
+        <Input
+          id="password"
+          type="password"
+          name="password"
+          autocomplete="new-password"
+          placeholder="Entrez votre mot de passe"
+          required
+        />
       </Field>
       <Field>
         <FieldLabel for="confirm-password"> Confirmation </FieldLabel>
         <Input
           id="confirm-password"
           type="password"
+          name="confirmPassword"
+          autocomplete="new-password"
           placeholder="Confirmez votre mot de passe"
           required
         />
       </Field>
       <Field>
         <FieldLabel for="cps-card"> Carte CPS </FieldLabel>
-        <Input id="cps-card" type="file" required />
+        <Input id="cps-card" type="file" name="cpsCard" required />
       </Field>
       <FieldGroup>
         <Field>

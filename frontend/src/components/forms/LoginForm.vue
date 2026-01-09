@@ -9,7 +9,14 @@ import { Input } from '@/components/ui/input'
     <FieldGroup>
       <Field>
         <FieldLabel for="email"> Email </FieldLabel>
-        <Input id="email" type="email" placeholder="Enter your email" required />
+        <Input
+          id="email"
+          type="email"
+          name="email"
+          autocomplete="email"
+          placeholder="Enter your email"
+          required
+        />
       </Field>
       <Field>
         <div class="flex items-center">
@@ -18,7 +25,14 @@ import { Input } from '@/components/ui/input'
             Forgot your password?
           </a>
         </div>
-        <Input id="password" type="password" placeholder="Enter your password" required />
+        <Input
+          id="password"
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          placeholder="Enter your password"
+          required
+        />
       </Field>
       <Field>
         <Button type="submit"> Login </Button>
