@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import ImageUtil from '@/components/utils/ImageUtil.vue'
-import ContainerUtil from '@/components/utils/ContainerUtil.vue'
 import { Button } from '@/components/ui/button'
+import HeroUtil from "@/components/utils/HeroUtil.vue";
 </script>
 
 <template>
-  <ContainerUtil as="section" class="flex items-center justify-center">
-    <div class="w-full h-full flex flex-col lg:flex-row gap-8 lg:gap-16 items-center lg:items-stretch">
+  <HeroUtil class="flex items-center justify-center">
+    <div class="w-full h-full flex flex-col lg:flex-row gap-5 items-center lg:items-stretch">
       <div class="w-full flex items-center justify-center">
         <ImageUtil
           image="pediatric-landing-hero"
           alt="Accompagnement pédiatrique"
           widthClass="w-full"
-          heightClass="h-full"
-          class="object-contain max-h-[50vh] lg:max-h-full"
+          heightClass="h-auto"
+          class="object-contain max-h-[50vh] lg:max-h-[70vh]"
         />
       </div>
 
@@ -45,5 +45,5 @@ import { Button } from '@/components/ui/button'
         </div>
       </div>
     </div>
-  </ContainerUtil>
+  </HeroUtil>
 </template>
