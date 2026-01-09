@@ -1,11 +1,9 @@
 import dotenv from 'dotenv';
-// 1. D'ABORD : On charge les variables d'environnement
 dotenv.config();
 
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 
-// 👇 IMPORTANT : On utilise les accolades car on a fait des "export const"
 import { diagnosisRouter } from './routes/diagnosis';
 import { authRouter } from './routes/auth';
 

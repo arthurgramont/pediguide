@@ -3,19 +3,15 @@ import { db } from '../db';
 import { doctors } from '../db/schema';
 import bcrypt from 'bcrypt';
 
-// Export nommé
 export const authRouter = Router();
 
-// POST : Inscription Médecin
 authRouter.post('/register', async (req: Request, res: Response): Promise<any> => {
   try {
     const { rpps, email, password, cpsCardUrl } = req.body;
 
-    // Hasher le mot de passe
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Créer le médecin
     const result = await db.insert(doctors).values({
       rpps,
       email,

@@ -3,10 +3,8 @@ import { db } from '../db';
 import { diagnosis } from '../db/schema';
 import { desc } from 'drizzle-orm';
 
-// Export nommé (nécessaire pour l'import { diagnosisRouter })
 export const diagnosisRouter = Router();
 
-// POST : Le parent envoie le formulaire
 diagnosisRouter.post('/', async (req: Request, res: Response) => {
   try {
     const data = req.body;
@@ -16,7 +14,6 @@ diagnosisRouter.post('/', async (req: Request, res: Response) => {
       childBirthDate: data.childBirthDate,
       consultationReason: data.consultationReason,
       
-      // On force le type en tableau de strings pour Drizzle
       behaviorChanges: (data.behaviorChanges || []) as string[],
       clinicalSigns: (data.clinicalSigns || []) as string[],
       
@@ -34,7 +31,6 @@ diagnosisRouter.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET : Le médecin récupère la liste
 diagnosisRouter.get('/', async (req: Request, res: Response) => {
   try {
     const list = await db.select().from(diagnosis).orderBy(desc(diagnosis.createdAt));

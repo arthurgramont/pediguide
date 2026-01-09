@@ -11,5 +11,4 @@ if (!process.env.DATABASE_URL) {
 
 const client = postgres(process.env.DATABASE_URL, { prepare: false });
 
-// 👇 IMPÉRATIF : "export const", PAS "export default"
 export const db = drizzle(client, { schema });
