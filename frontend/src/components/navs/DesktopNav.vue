@@ -5,7 +5,6 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import IconsUtil from '@/components/utils/IconsUtil.vue'
 </script>
@@ -14,23 +13,23 @@ import IconsUtil from '@/components/utils/IconsUtil.vue'
   <NavigationMenu>
     <NavigationMenuList>
       <NavigationMenuItem>
-        <NavigationMenuLink as-child :class="navigationMenuTriggerStyle()">
+        <NavigationMenuLink as-child>
           <RouterLink to="/">Accueil</RouterLink>
         </NavigationMenuLink>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <NavigationMenuLink as-child :class="navigationMenuTriggerStyle()">
+        <NavigationMenuLink as-child>
           <RouterLink to="/diagnosis">Diagnostic</RouterLink>
         </NavigationMenuLink>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <NavigationMenuLink as-child :class="navigationMenuTriggerStyle()">
-          <RouterLink to="/login" class="group/login flex-row gap-2">
+        <NavigationMenuLink as-child>
+          <RouterLink to="/login" class="flex-row gap-2 items-center">
             <IconsUtil
               icon="user-circle"
               widthClass="w-6"
               heightClass="h-6"
-              colorClass="text-foreground group-hover/login:text-primary group-focus-visible/login:text-primary transition-colors"
+              colorClass="text-foreground transition-colors"
             />
             Vous êtes médecin ?
           </RouterLink>
