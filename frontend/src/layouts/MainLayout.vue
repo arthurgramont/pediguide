@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HeaderMenu from '@/components/menus/HeaderMenu.vue'
+import MainFooter from '@/components/footers/MainFooter.vue'
 </script>
 
 <template>
@@ -9,5 +10,6 @@ import HeaderMenu from '@/components/menus/HeaderMenu.vue'
     <main id="main-content" class="flex-1" tabindex="-1">
       <slot />
     </main>
+    <MainFooter />
   </div>
 </template>
