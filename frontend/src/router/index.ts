@@ -28,6 +28,12 @@ const router = createRouter({
       meta: { layout: 'main' },
     },
     {
+      path: '/results/:id',
+      name: 'results',
+      component: () => import('@/pages/ResultsView.vue'),
+      meta: { layout: 'main' },
+    },
+    {
       path: '/mentions-legales',
       name: 'legal-notice',
       component: () => import('@/pages/LegalNoticeView.vue'),
