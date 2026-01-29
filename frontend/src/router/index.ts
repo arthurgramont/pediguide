@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { isAuthenticated } from '@/services/api'
+import api, { isAuthenticated } from '@/services/api'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -86,9 +86,26 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to) => {
+let hasValidatedDoctorSession = false
+
+router.beforeEach(async (to) => {
   if (to.meta.requiresAuth && !isAuthenticated()) {
     return { name: 'login' }
+  }
+
+  if (to.meta.requiresAuth && !hasValidatedDoctorSession) {
+    try {
+      await api.doctors.getMe()
+      hasValidatedDoctorSession = true
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : ''
+      const isAuthError = message.includes('401') || message.includes('403')
+      if (isAuthError) {
+        api.auth.logout()
+        hasValidatedDoctorSession = false
+        return { name: 'login' }
+      }
+    }
   }
 
   return true
