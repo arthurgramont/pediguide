@@ -28,13 +28,13 @@ async function handleSubmit(e: Event) {
 
   // Validate RPPS (should be 11 digits)
   if (!/^\d{11}$/.test(rpps.value)) {
-    error.value = 'Le numéro RPPS doit contenir exactement 11 chiffres'
+    error.value = 'Le numÃ©ro RPPS doit contenir exactement 11 chiffres'
     return
   }
 
   // Validate password strength (minimum 8 characters)
   if (password.value.length < 8) {
-    error.value = 'Le mot de passe doit contenir au moins 8 caractères'
+    error.value = 'Le mot de passe doit contenir au moins 8 caractÃ¨res'
     return
   }
 
@@ -61,14 +61,14 @@ async function handleSubmit(e: Event) {
     if (
       lowerError.includes('rpps') ||
       lowerError.includes('email') ||
-      lowerError.includes('déjà utilisé') ||
+      lowerError.includes('dÃ©jÃ  utilisÃ©') ||
       lowerError.includes('duplicate')
     ) {
-      error.value = 'Ce numéro RPPS ou cet email est déjà utilisé'
+      error.value = 'Ce numÃ©ro RPPS ou cet email est dÃ©jÃ  utilisÃ©'
     } else if (lowerError.includes('serveur') || lowerError.includes('backend')) {
       error.value = errorMessage // Use the full server error message
     } else {
-      error.value = errorMessage || 'Erreur lors de l\'inscription. Veuillez réessayer.'
+      error.value = errorMessage || 'Erreur lors de l\'inscription. Veuillez rÃ©essayer.'
     }
   } finally {
     loading.value = false
@@ -79,19 +79,19 @@ async function handleSubmit(e: Event) {
 <template>
   <form @submit="handleSubmit">
     <FieldGroup>
-      <div v-if="error" class="rounded-md bg-red-50 p-3 text-sm text-red-800 mb-4">
+      <div v-if="error" class="rounded-md bg-red-50 p-3 text-sm text-red-800 mb-4" role="alert" aria-live="assertive" aria-atomic="true">
         {{ error }}
       </div>
 
       <Field>
-        <FieldLabel for="rpps-number"> Numéro RPPS </FieldLabel>
+        <FieldLabel for="rpps-number"> NumÃ©ro RPPS </FieldLabel>
         <Input
           id="rpps-number"
           v-model="rpps"
           type="text"
           name="rppsNumber"
           autocomplete="off"
-          placeholder="Entrez votre numéro RPPS (11 chiffres)"
+          placeholder="Entrez votre numÃ©ro RPPS (11 chiffres)"
           pattern="\d{11}"
           required
           :disabled="loading"
@@ -118,7 +118,7 @@ async function handleSubmit(e: Event) {
           type="password"
           name="password"
           autocomplete="new-password"
-          placeholder="Entrez votre mot de passe (min. 8 caractères)"
+          placeholder="Entrez votre mot de passe (min. 8 caractÃ¨res)"
           minlength="8"
           required
           :disabled="loading"
@@ -152,10 +152,10 @@ async function handleSubmit(e: Event) {
       <FieldGroup>
         <Field>
           <Button type="submit" :disabled="loading">
-            {{ loading ? 'Création en cours...' : 'Créer un compte' }}
+            {{ loading ? 'CrÃ©ation en cours...' : 'CrÃ©er un compte' }}
           </Button>
           <FieldDescription class="px-6 text-center">
-            Vous avez déjà un compte ?
+            Vous avez dÃ©jÃ  un compte ?
             <RouterLink to="/login">
               Se connecter
             </RouterLink>
@@ -165,3 +165,4 @@ async function handleSubmit(e: Event) {
     </FieldGroup>
   </form>
 </template>
+
