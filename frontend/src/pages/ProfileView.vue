@@ -43,7 +43,10 @@ onMounted(async () => {
     isLoading.value = true
 
     // Fetch doctor profile from API
-    const response = await api.doctors.getMe()
+    const response = await api.doctors.getMe() as { 
+      success: boolean; 
+      doctor?: DoctorProfile 
+    }
 
     if (response.success && response.doctor) {
       profile.value = {
@@ -55,12 +58,13 @@ onMounted(async () => {
         createdAt: response.doctor.createdAt,
       }
     }
-  } catch (err: any) {
-    console.error('Error fetching profile:', err)
+  } catch (err: unknown) {
+    const errorObj = err as Error;
+    console.error('Error fetching profile:', errorObj)
     error.value = 'Impossible de charger le profil'
 
     // If unauthorized, redirect to login
-    if (err.message?.includes('401') || err.message?.includes('403')) {
+    if (errorObj.message?.includes('401') || errorObj.message?.includes('403')) {
       api.auth.logout()
       router.push('/login')
     }

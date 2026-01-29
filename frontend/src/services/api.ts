@@ -5,7 +5,7 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -43,15 +43,15 @@ export function isAuthenticated(): boolean {
 /**
  * Generic fetch wrapper with authentication support
  */
-async function apiFetch<T = any>(
+async function apiFetch<T = unknown>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
   const token = getAuthToken();
 
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...((options.headers as Record<string, string>) || {}),
   };
 
   // Add Authorization header if token exists
@@ -87,9 +87,10 @@ async function apiFetch<T = any>(
     }
 
     return data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as Error;
     // Handle network errors
-    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+    if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
       throw new Error(
         `Impossible de se connecter au serveur sur ${API_BASE_URL}. Vérifiez que le backend est démarré.`
       );
@@ -108,7 +109,7 @@ export const api = {
    */
   auth: {
     login: async (email: string, password: string) => {
-      const response = await apiFetch('/auth/login', {
+      const response = await apiFetch<{ token?: string }>('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });

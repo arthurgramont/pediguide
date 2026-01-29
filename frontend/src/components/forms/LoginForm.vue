@@ -25,11 +25,12 @@ async function handleSubmit(e: Event) {
     if (response) {
        router.push('/profile')
     }
-  } catch (err: any) {
-    console.error('Login error:', err)
+  } catch (err: unknown) {
+    const errorObj = err as Error;
+    console.error('Login error:', errorObj)
     
     // Improve error messages for user
-    const errorMessage = err.message || ''
+    const errorMessage = errorObj.message || ''
     const lowerError = errorMessage.toLowerCase()
     
     if (lowerError.includes('401') || lowerError.includes('invalid') || lowerError.includes('credentials')) {

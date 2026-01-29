@@ -42,17 +42,18 @@ async function startVerification() {
     error.value = null
 
     // Call KYC start endpoint (uses authenticated user from JWT token)
-    const data = await api.kyc.start()
+    const data = await api.kyc.start() as { redirect_url?: string; url?: string }
 
     if (data.redirect_url || data.url) {
       // Redirect to Didit verification page
-      window.location.href = data.redirect_url || data.url
+      window.location.href = (data.redirect_url || data.url) as string
     } else {
       throw new Error('No redirect URL received')
     }
-  } catch (err: any) {
-    console.error('Error starting KYC verification:', err)
-    error.value = err.message || 'Une erreur est survenue lors du démarrage de la vérification'
+  } catch (err: unknown) {
+    const errorObj = err as Error;
+    console.error('Error starting KYC verification:', errorObj)
+    error.value = errorObj.message || 'Une erreur est survenue lors du démarrage de la vérification'
   } finally {
     isLoading.value = false
   }

@@ -50,11 +50,12 @@ async function handleSubmit(e: Event) {
 
     // Registration successful - redirect to login
     router.push('/login')
-  } catch (err: any) {
-    console.error('Registration error:', err)
+  } catch (err: unknown) {
+    const errorObj = err as Error;
+    console.error('Registration error:', errorObj)
 
     // Handle specific error messages
-    const errorMessage = err.message || ''
+    const errorMessage = errorObj.message || ''
     const lowerError = errorMessage.toLowerCase()
 
     if (
