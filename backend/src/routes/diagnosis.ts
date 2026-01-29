@@ -24,7 +24,9 @@ const normalizeList = (value?: string[] | null) => {
   return value.map((item) => String(item).trim()).filter(Boolean);
 };
 
-const drawSectionSeparator = (doc: PDFDocument, color: string, left: number, right: number) => {
+type PDFDocumentType = InstanceType<typeof PDFDocument>;
+
+const drawSectionSeparator = (doc: PDFDocumentType, color: string, left: number, right: number) => {
   doc
     .strokeColor(color)
     .lineWidth(0.6)
@@ -83,37 +85,46 @@ diagnosisRouter.get('/:id/pdf', async (req: Request, res: Response) => {
     const mutedGray = '#6B7280';
     const separatorGray = '#D6E1DF';
 
-    const doc = new PDFDocument({ size: 'A4', margin: 54, bufferPages: true });
+    const doc = new PDFDocument({ size: 'A4', margin: 50, bufferPages: true });
     doc.pipe(res);
     doc.info.Title = 'PediGuide - Compte rendu';
 
     const pageLeft = doc.page.margins.left;
     const pageRight = doc.page.width - doc.page.margins.right;
     const pageWidth = pageRight - pageLeft;
+    const contentWidth = pageWidth;
 
     const addSectionTitle = (title: string) => {
       doc
         .font('Helvetica-Bold')
         .fontSize(13)
         .fillColor(darkContrast)
-        .text(title);
-      doc.moveDown(0.3);
+        .text(title, pageLeft, doc.y, { width: contentWidth });
+      doc.moveDown(0.25);
       doc.font('Helvetica').fontSize(11).fillColor('#111111');
     };
 
     const addKeyValue = (label: string, value: string) => {
-      doc.font('Helvetica-Bold').fillColor(darkContrast).text(`${label} `, { continued: true });
-      doc.font('Helvetica').fillColor('#111111').text(value);
+      doc.font('Helvetica-Bold').fillColor(darkContrast);
+      const labelText = `${label} `;
+      const labelWidth = doc.widthOfString(labelText);
+      doc.text(labelText, pageLeft, doc.y, { continued: true });
+      doc.font('Helvetica').fillColor('#111111');
+      doc.text(value, { width: Math.max(contentWidth - labelWidth, 50) });
       doc.moveDown(0.2);
     };
 
     const addBulletList = (label: string, items: string[]) => {
-      doc.font('Helvetica-Bold').fillColor(darkContrast).text(label);
+      const bulletIndent = 12;
+      doc.font('Helvetica-Bold').fillColor(darkContrast).text(label, pageLeft, doc.y, { width: contentWidth });
       if (items.length === 0) {
-        doc.font('Helvetica').fillColor('#111111').text('Non renseigné');
+        doc.font('Helvetica').fillColor('#111111').text('Non renseigné', pageLeft, doc.y, { width: contentWidth });
       } else {
         items.forEach((item) => {
-          doc.font('Helvetica').fillColor('#111111').text(`• ${item}`, { indent: 14 });
+          doc
+            .font('Helvetica')
+            .fillColor('#111111')
+            .text(`• ${item}`, pageLeft + bulletIndent, doc.y, { width: contentWidth - bulletIndent });
         });
       }
       doc.moveDown(0.2);
@@ -121,46 +132,44 @@ diagnosisRouter.get('/:id/pdf', async (req: Request, res: Response) => {
 
     doc.font('Helvetica').fontSize(11).lineGap(2).fillColor('#111111');
 
-    doc.font('Helvetica-Bold').fontSize(20).fillColor(darkContrast).text('PediGuide', { align: 'center' });
-    doc.font('Helvetica').fontSize(13).fillColor(darkContrast).text('Compte rendu pré-consultation', { align: 'center' });
-    doc.moveDown(0.6);
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(18)
+      .fillColor(darkContrast)
+      .text('PediGuide - Compte rendu', pageLeft, doc.y, { width: pageWidth });
+    doc
+      .font('Helvetica')
+      .fontSize(12)
+      .fillColor(darkContrast)
+      .text('Compte rendu pré-consultation', pageLeft, doc.y, { width: pageWidth });
+    doc.moveDown(0.5);
     drawSectionSeparator(doc, primaryTeal, pageLeft, pageRight);
-    doc.moveDown(0.8);
+    doc.moveDown(0.6);
 
-    const metaTop = doc.y;
-    const columnGap = 24;
-    const columnWidth = (pageWidth - columnGap) / 2;
     const recordedDate = formatDate(record.createdAt ? new Date(record.createdAt) : new Date());
-
-    doc.font('Helvetica').fontSize(9).fillColor(mutedGray).text('Identifiant', pageLeft, metaTop, { width: columnWidth });
-    doc.font('Helvetica-Bold').fontSize(11).fillColor(darkContrast).text(record.id ?? id, pageLeft, metaTop + 12, { width: columnWidth });
-
-    doc.font('Helvetica').fontSize(9).fillColor(mutedGray).text('Date', pageLeft + columnWidth + columnGap, metaTop, { width: columnWidth });
-    doc.font('Helvetica-Bold').fontSize(11).fillColor(darkContrast).text(recordedDate, pageLeft + columnWidth + columnGap, metaTop + 12, { width: columnWidth });
-
-    doc.y = metaTop + 32;
-    doc.moveDown(0.4);
+    addKeyValue('Identifiant :', record.id ?? id);
+    addKeyValue('Date :', recordedDate);
     drawSectionSeparator(doc, separatorGray, pageLeft, pageRight);
-    doc.moveDown(0.8);
+    doc.moveDown(0.6);
 
     addSectionTitle('Informations patient');
-    addKeyValue('Prénom:', formatTextValue(record.childFirstName));
-    addKeyValue('Date de naissance:', formatTextValue(record.childBirthDate));
-    addKeyValue('Motif de consultation:', formatTextValue(record.consultationReason));
+    addKeyValue('Prénom :', formatTextValue(record.childFirstName));
+    addKeyValue('Date de naissance :', formatTextValue(record.childBirthDate));
+    addKeyValue('Motif de consultation :', formatTextValue(record.consultationReason));
     drawSectionSeparator(doc, separatorGray, pageLeft, pageRight);
-    doc.moveDown(0.8);
+    doc.moveDown(0.6);
 
     addSectionTitle('Observations');
-    addBulletList('Changements de comportement:', normalizeList(record.behaviorChanges as string[] | null));
-    addBulletList('Signes cliniques:', normalizeList(record.clinicalSigns as string[] | null));
-    addKeyValue('Durée des symptômes:', formatTextValue(record.duration));
-    addKeyValue('Niveau d'inquiétude:', formatTextValue(record.worryLevel));
+    addBulletList('Changements de comportement :', normalizeList(record.behaviorChanges as string[] | null));
+    addBulletList('Signes cliniques :', normalizeList(record.clinicalSigns as string[] | null));
+    addKeyValue('Durée des symptômes :', formatTextValue(record.duration));
+    addKeyValue("Niveau d'inquiétude :", formatTextValue(record.worryLevel));
     drawSectionSeparator(doc, separatorGray, pageLeft, pageRight);
-    doc.moveDown(0.8);
+    doc.moveDown(0.6);
 
     addSectionTitle('Actions et notes');
-    addBulletList('Actions entreprises:', normalizeList(record.actionsTaken as string[] | null));
-    addKeyValue('Message complémentaire:', formatTextValue(record.additionalNotes));
+    addBulletList('Actions entreprises :', normalizeList(record.actionsTaken as string[] | null));
+    addKeyValue('Message complémentaire :', formatTextValue(record.additionalNotes));
 
     const footerNote = 'Ce document est généré automatiquement à partir du questionnaire de pré-consultation et ne remplace pas un avis médical.';
     const range = doc.bufferedPageRange();
@@ -172,26 +181,29 @@ diagnosisRouter.get('/:id/pdf', async (req: Request, res: Response) => {
       const currentLeft = doc.page.margins.left;
       const currentRight = doc.page.width - doc.page.margins.right;
       const currentWidth = currentRight - currentLeft;
-      const footerY = doc.page.height - doc.page.margins.bottom + 8;
+      const footerHeight = 34;
+      const footerY = doc.page.height - doc.page.margins.bottom - footerHeight;
 
       doc
         .strokeColor(separatorGray)
         .lineWidth(0.5)
-        .moveTo(currentLeft, footerY - 8)
-        .lineTo(currentRight, footerY - 8)
+        .moveTo(currentLeft, footerY)
+        .lineTo(currentRight, footerY)
         .stroke();
 
       doc
         .font('Helvetica')
         .fontSize(8)
         .fillColor(mutedGray)
-        .text(footerNote, currentLeft, footerY, { width: currentWidth - 70, align: 'left' });
+        .text(footerNote, currentLeft, footerY + 10, { width: currentWidth - 70, align: 'left' });
 
-      doc
-        .font('Helvetica')
-        .fontSize(8)
-        .fillColor(mutedGray)
-        .text(`Page ${pageNumber}/${range.count}`, currentRight - 60, footerY, { width: 60, align: 'right' });
+      if (range.count > 1) {
+        doc
+          .font('Helvetica')
+          .fontSize(8)
+          .fillColor(mutedGray)
+          .text(`Page ${pageNumber}/${range.count}`, currentRight - 60, footerY + 10, { width: 60, align: 'right' });
+      }
     }
 
     doc.end();
