@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import api, { isAuthenticated } from '@/services/api'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,7 +32,19 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: () => import('@/pages/ProfileView.vue'),
-      meta: { layout: 'main' },
+      meta: { layout: 'main', requiresAuth: true },
+    },
+    {
+      path: '/dashboard',
+      name: 'doctor-dashboard',
+      component: () => import('@/pages/DoctorDashboardView.vue'),
+      meta: { layout: 'main', requiresAuth: true },
+    },
+    {
+      path: '/dashboard/:id',
+      name: 'doctor-dashboard-detail',
+      component: () => import('@/pages/DoctorFormSummaryView.vue'),
+      meta: { layout: 'main', requiresAuth: true },
     },
     {
       path: '/results/:id',
@@ -71,6 +84,31 @@ const router = createRouter({
       meta: { layout: 'main' },
     },
   ],
+})
+
+let hasValidatedDoctorSession = false
+
+router.beforeEach(async (to) => {
+  if (to.meta.requiresAuth && !isAuthenticated()) {
+    return { name: 'login' }
+  }
+
+  if (to.meta.requiresAuth && !hasValidatedDoctorSession) {
+    try {
+      await api.doctors.getMe()
+      hasValidatedDoctorSession = true
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : ''
+      const isAuthError = message.includes('401') || message.includes('403')
+      if (isAuthError) {
+        api.auth.logout()
+        hasValidatedDoctorSession = false
+        return { name: 'login' }
+      }
+    }
+  }
+
+  return true
 })
 
 export default router

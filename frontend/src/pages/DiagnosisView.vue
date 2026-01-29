@@ -18,6 +18,7 @@ import {
   validators,
   type FormFieldKey,
 } from '@/pages/diagnosis/diagnosisValidation'
+import { API_BASE_URL } from '@/services/api'
 
 const router = useRouter()
 const formStore = useDiagnosisFormStore()
@@ -204,9 +205,7 @@ const submitForm = async () => {
   isLoading.value = true
 
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || 'https://pediguide-backend.vercel.app'
-
-    const res = await fetch(`${apiUrl}/api/diagnosis`, {
+    const res = await fetch(`${API_BASE_URL}/diagnosis`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form.value),

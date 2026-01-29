@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { Button } from '@/components/ui/button'
+import { API_BASE_URL } from '@/services/api'
 
 const route = useRoute()
 const isDownloading = ref(false)
@@ -49,8 +50,9 @@ const downloadPdf = async () => {
   statusMessage.value = 'Téléchargement du PDF en cours...'
 
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-    const response = await fetch(`${apiUrl}/api/diagnosis/${encodeURIComponent(submissionId.value)}/pdf`)
+    const response = await fetch(
+      `${API_BASE_URL}/diagnosis/${encodeURIComponent(submissionId.value)}/pdf`
+    )
 
     if (!response.ok) {
       throw new Error('Erreur lors de la génération du PDF.')
