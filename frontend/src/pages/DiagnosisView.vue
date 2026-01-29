@@ -115,7 +115,7 @@ const validateStep = (currentStep: number) => {
 const focusField = async (field: FormFieldKey) => {
   await nextTick()
   const rawId = fieldIds[field] || ''
-  const elementId = String(rawId) // Double sécurité
+  const elementId = String(rawId)
   if (!elementId || elementId.trim() === '') return 
   const element = document.getElementById(elementId)
   if (element instanceof HTMLElement) {
@@ -135,6 +135,7 @@ const focusFirstInvalidField = async (currentStep: number) => {
 const focusStepHeading = async () => {
   await nextTick()
   const headingId = stepHeadingIds[step.value]
+  if (!headingId) return
   const heading = document.getElementById(headingId)
   if (heading instanceof HTMLElement) {
     heading.focus()
