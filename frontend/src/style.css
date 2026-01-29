@@ -484,7 +484,7 @@ html, body {
 
   /* Primary - Couleur principale (Brand) */
   --primary: var(--pg-primary);
-  --primary-foreground: var(--pg-dark);
+  --primary-foreground: var(--pg-cream);
 
   /* Secondary - Couleur secondaire (Brand Alt) */
   --secondary: var(--pg-secondary);
