@@ -72,6 +72,11 @@ watch(
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink as-child>
+            <RouterLink to="/form-editor">Éditer le formulaire</RouterLink>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink as-child>
             <RouterLink to="/profile">Profil</RouterLink>
           </NavigationMenuLink>
         </NavigationMenuItem>

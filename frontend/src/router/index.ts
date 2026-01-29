@@ -47,6 +47,12 @@ const router = createRouter({
       meta: { layout: 'main', requiresAuth: true },
     },
     {
+      path: '/form-editor',
+      name: 'doctor-form-editor',
+      component: () => import('@/pages/DoctorFormEditorView.vue'),
+      meta: { layout: 'main', requiresAuth: true },
+    },
+    {
       path: '/results/:id',
       name: 'results',
       component: () => import('@/pages/ResultsView.vue'),
