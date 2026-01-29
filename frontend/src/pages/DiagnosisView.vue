@@ -1,10 +1,11 @@
-<script setup lang="ts">
-import { computed, nextTick, reactive, ref, watch } from 'vue'
+﻿<script setup lang="ts">
+import { computed, nextTick, reactive, ref, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Field, FieldError } from '@/components/ui/field'
 import { useDiagnosisFormStore } from '@/stores/diagnosisForm'
+import type { DiagnosisFormState } from '@/stores/diagnosisForm'
 import DiagnosisHeader from '@/pages/diagnosis/DiagnosisHeader.vue'
 import DiagnosisStep1 from '@/pages/diagnosis/DiagnosisStep1.vue'
 import DiagnosisStep2 from '@/pages/diagnosis/DiagnosisStep2.vue'
@@ -14,11 +15,17 @@ import DiagnosisStep5 from '@/pages/diagnosis/DiagnosisStep5.vue'
 import {
   errorId,
   fieldIds,
-  requiredFieldsByStep,
   validators,
   type FormFieldKey,
 } from '@/pages/diagnosis/diagnosisValidation'
 import { API_BASE_URL } from '@/services/api'
+import {
+  defaultFormConfig,
+  formConfigApi,
+  formFieldStepMap,
+  type FormConfig,
+  type FormConfigField,
+} from '@/services/formConfigApi'
 
 const router = useRouter()
 const formStore = useDiagnosisFormStore()
@@ -29,6 +36,10 @@ const step = ref(1)
 const isLoading = ref(false)
 const errorMessage = ref('')
 const stepAttempted = ref(false)
+const configError = ref('')
+const isConfigLoading = ref(false)
+
+const formConfig = ref<FormConfig>(defaultFormConfig)
 
 const progress = computed(() => (step.value / totalSteps) * 100)
 
@@ -52,33 +63,97 @@ const stepHeadingIds: Record<number, string> = {
   5: 'step-5-title',
 }
 
-const getValueForValidator = (field: FormFieldKey): string | boolean => {
-  const val = form.value[field]
-  if (Array.isArray(val)) {
-    return val.length > 0 ? 'filled' : ''
+const activeFields = computed(() =>
+  formConfig.value.fields.filter((field) => field.isActive !== false),
+)
+
+const fieldsByKey = computed(() => {
+  return formConfig.value.fields.reduce<Record<string, FormConfigField>>((acc, field) => {
+    acc[field.key] = field
+    return acc
+  }, {})
+})
+
+const getFieldsForStep = (stepNumber: number) => {
+  return activeFields.value
+    .filter((field) => formFieldStepMap[field.key] === stepNumber)
+    .sort((a, b) => a.order - b.order)
+}
+
+const step1Fields = computed(() => getFieldsForStep(1))
+const step2Fields = computed(() => getFieldsForStep(2))
+const step3Fields = computed(() => getFieldsForStep(3))
+const step4Fields = computed(() => getFieldsForStep(4))
+const step5Fields = computed(() => getFieldsForStep(5))
+const step5Field = computed(() => step5Fields.value[0] ?? null)
+
+const getFieldConfig = (field: FormFieldKey) => fieldsByKey.value[field]
+
+const isFieldActive = (field: FormFieldKey) => {
+  if (field === 'consent') return true
+  const config = getFieldConfig(field)
+  return config ? config.isActive !== false : true
+}
+
+const isFieldRequired = (field: FormFieldKey) => {
+  if (field === 'consent') return true
+  const config = getFieldConfig(field)
+  return config ? Boolean(config.required) : false
+}
+
+const isEmptyValue = (field: FormFieldKey, value: DiagnosisFormState[FormFieldKey]) => {
+  if (Array.isArray(value)) {
+    return value.length === 0
   }
-  if (typeof val === 'boolean') {
-    return val
+  if (typeof value === 'boolean') {
+    return value !== true
   }
-  if (val === null || val === undefined) {
-    return ''
+  return String(value ?? '').trim().length === 0
+}
+
+const requiredMessages: Partial<Record<FormFieldKey, string>> = {
+  behaviorChanges: 'Merci de sélectionner au moins une option.',
+  clinicalSigns: 'Merci de sélectionner au moins une option.',
+  actionsTaken: 'Merci de sélectionner au moins une option.',
+  consent: 'Merci de donner votre consentement avant l\'envoi.',
+}
+
+const validateField = (field: FormFieldKey) => {
+  if (!isFieldActive(field)) {
+    delete errors[field]
+    return true
   }
-  return String(val)
+
+  const required = isFieldRequired(field)
+  const value = form.value[field]
+  const isEmpty = isEmptyValue(field, value)
+
+  if (!required && isEmpty) {
+    delete errors[field]
+    return true
+  }
+
+  const validator = validators[field]
+  let error = validator ? validator(value) : null
+
+  if (!error && required && isEmpty) {
+    error = requiredMessages[field] || 'Ce champ est requis.'
+  }
+
+  if (error) {
+    errors[field] = error
+    return false
+  }
+
+  delete errors[field]
+  return true
 }
 
 const shouldShowError = (field: FormFieldKey) => Boolean(errors[field])
   && (touched[field] || stepAttempted.value)
 
 const setFieldError = (field: FormFieldKey) => {
-  const validator = validators[field]
-  if (!validator) return
-  const valToValidate = getValueForValidator(field)
-  const error = validator(valToValidate)
-  if (error) {
-    errors[field] = error
-  } else {
-    delete errors[field]
-  }
+  validateField(field)
 }
 
 const handleFieldBlur = (field: FormFieldKey) => {
@@ -98,21 +173,18 @@ const handleFieldChange = (field: FormFieldKey) => {
 }
 
 const validateStep = (currentStep: number) => {
-  const requiredFields = requiredFieldsByStep[currentStep] ?? []
   let isValid = true
 
-  requiredFields.forEach((field) => {
-    const validator = validators[field]
-    if (!validator) return // Sécurité
-    const valToValidate = getValueForValidator(field)
-    const error = validator(valToValidate)
-    if (error) {
-      errors[field] = error
+  const fields = getFieldsForStep(currentStep)
+  fields.forEach((field) => {
+    if (!validateField(field.key as FormFieldKey)) {
       isValid = false
-    } else {
-      delete errors[field]
     }
   })
+
+  if (currentStep === 5 && !validateField('consent')) {
+    isValid = false
+  }
 
   return isValid
 }
@@ -121,7 +193,7 @@ const focusField = async (field: FormFieldKey) => {
   await nextTick()
   const rawId = fieldIds[field] || ''
   const elementId = String(rawId)
-  if (!elementId || elementId.trim() === '') return 
+  if (!elementId || elementId.trim() === '') return
   const element = document.getElementById(elementId)
   if (element instanceof HTMLElement) {
     element.focus()
@@ -130,8 +202,12 @@ const focusField = async (field: FormFieldKey) => {
 }
 
 const focusFirstInvalidField = async (currentStep: number) => {
-  const requiredFields = requiredFieldsByStep[currentStep] ?? []
-  const firstInvalidField = requiredFields.find((field) => Boolean(errors[field]))
+  const fields = getFieldsForStep(currentStep).map((field) => field.key as FormFieldKey)
+  if (currentStep === 5) {
+    fields.push('consent')
+  }
+
+  const firstInvalidField = fields.find((field) => Boolean(errors[field]))
   if (firstInvalidField) {
     await focusField(firstInvalidField)
   }
@@ -165,18 +241,14 @@ const prevStep = () => {
 }
 
 const validateAllSteps = () => {
-  const orderedSteps = Object.keys(requiredFieldsByStep)
-    .map(Number)
-    .sort((a, b) => a - b)
-
   let firstInvalidStep: number | null = null
 
-  orderedSteps.forEach((stepNumber) => {
-    const isValid = validateStep(stepNumber)
+  for (let i = 1; i <= totalSteps; i += 1) {
+    const isValid = validateStep(i)
     if (!isValid && firstInvalidStep === null) {
-      firstInvalidStep = stepNumber
+      firstInvalidStep = i
     }
-  })
+  }
 
   return firstInvalidStep
 }
@@ -232,10 +304,29 @@ const submitForm = async () => {
   }
 }
 
+const loadFormConfig = async () => {
+  isConfigLoading.value = true
+  configError.value = ''
+  try {
+    formConfig.value = await formConfigApi.get()
+    resetValidationState()
+  } catch (err: unknown) {
+    const errorObj = err as Error
+    configError.value = errorObj.message || 'Impossible de charger le formulaire.'
+    formConfig.value = defaultFormConfig
+  } finally {
+    isConfigLoading.value = false
+  }
+}
+
 watch(step, async () => {
   if (!stepAttempted.value) {
     await focusStepHeading()
   }
+})
+
+onMounted(() => {
+  void loadFormConfig()
 })
 </script>
 
@@ -246,9 +337,25 @@ watch(step, async () => {
         <DiagnosisHeader :step="step" :total-steps="totalSteps" :progress="progress" />
 
         <form novalidate @submit.prevent="submitForm" class="mt-8 space-y-6">
+          <div
+            v-if="configError"
+            class="rounded-xl border border-border/70 bg-muted/30 px-4 py-3 text-sm text-destructive"
+            aria-live="polite"
+          >
+            {{ configError }}
+          </div>
+          <div
+            v-else-if="isConfigLoading"
+            class="rounded-xl border border-border/70 bg-muted/30 px-4 py-3 text-sm text-muted-foreground"
+            aria-live="polite"
+          >
+            Chargement du formulaire...
+          </div>
+
           <DiagnosisStep1
             v-if="step === 1"
             :form="form"
+            :fields="step1Fields"
             :errors="errors"
             :max-birth-date="maxBirthDate"
             :should-show-error="shouldShowError"
@@ -257,20 +364,35 @@ watch(step, async () => {
             @field-input="handleFieldInput"
           />
 
-          <DiagnosisStep2 v-if="step === 2" :form="form" />
+          <DiagnosisStep2
+            v-if="step === 2"
+            :form="form"
+            :fields="step2Fields"
+            :errors="errors"
+            :should-show-error="shouldShowError"
+            :error-id="errorId"
+          />
 
           <DiagnosisStep3
             v-if="step === 3"
             :form="form"
+            :fields="step3Fields"
             :errors="errors"
             :should-show-error="shouldShowError"
             :error-id="errorId"
             @field-change="handleFieldChange"
           />
 
-          <DiagnosisStep4 v-if="step === 4" :form="form" />
+          <DiagnosisStep4
+            v-if="step === 4"
+            :form="form"
+            :fields="step4Fields"
+            :errors="errors"
+            :should-show-error="shouldShowError"
+            :error-id="errorId"
+          />
 
-          <DiagnosisStep5 v-if="step === 5" :form="form" />
+          <DiagnosisStep5 v-if="step === 5" :form="form" :field="step5Field" />
 
           <div
             v-if="step === totalSteps"
