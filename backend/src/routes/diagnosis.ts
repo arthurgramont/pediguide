@@ -19,9 +19,18 @@ const formatTextValue = (value?: string | null) => {
   return trimmed.length > 0 ? trimmed : 'Non renseigné';
 };
 
-const formatListValue = (value?: string[] | null) => {
-  if (!value || value.length === 0) return 'Non renseigné';
-  return value.join(', ');
+const normalizeList = (value?: string[] | null) => {
+  if (!value || value.length === 0) return [];
+  return value.map((item) => String(item).trim()).filter(Boolean);
+};
+
+const drawSectionSeparator = (doc: PDFDocument, color: string, left: number, right: number) => {
+  doc
+    .strokeColor(color)
+    .lineWidth(0.6)
+    .moveTo(left, doc.y)
+    .lineTo(right, doc.y)
+    .stroke();
 };
 
 diagnosisRouter.post('/', async (req: Request, res: Response) => {
@@ -69,31 +78,121 @@ diagnosisRouter.get('/:id/pdf', async (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="pediguide-compte-rendu-${fileDate}.pdf"`);
 
-    const doc = new PDFDocument({ size: 'A4', margin: 48 });
+    const primaryTeal = '#4A9B8E';
+    const darkContrast = '#182245';
+    const mutedGray = '#6B7280';
+    const separatorGray = '#D6E1DF';
+
+    const doc = new PDFDocument({ size: 'A4', margin: 54, bufferPages: true });
     doc.pipe(res);
+    doc.info.Title = 'PediGuide - Compte rendu';
 
-    doc.fontSize(18).text('PediGuide - Compte rendu', { align: 'center' });
-    doc.moveDown();
-    doc.fontSize(12).text(`Identifiant: ${record.id ?? id}`);
-    doc.text(`Date: ${formatDate(record.createdAt ? new Date(record.createdAt) : new Date())}`);
-    doc.moveDown();
+    const pageLeft = doc.page.margins.left;
+    const pageRight = doc.page.width - doc.page.margins.right;
+    const pageWidth = pageRight - pageLeft;
 
-    doc.font('Helvetica-Bold').text('Informations patient');
-    doc.font('Helvetica').text(`Prénom: ${formatTextValue(record.childFirstName)}`);
-    doc.text(`Date de naissance: ${formatTextValue(record.childBirthDate)}`);
-    doc.text(`Motif de consultation: ${formatTextValue(record.consultationReason)}`);
-    doc.moveDown();
+    const addSectionTitle = (title: string) => {
+      doc
+        .font('Helvetica-Bold')
+        .fontSize(13)
+        .fillColor(darkContrast)
+        .text(title);
+      doc.moveDown(0.3);
+      doc.font('Helvetica').fontSize(11).fillColor('#111111');
+    };
 
-    doc.font('Helvetica-Bold').text('Observations');
-    doc.font('Helvetica').text(`Changements de comportement: ${formatListValue(record.behaviorChanges as string[] | null)}`);
-    doc.text(`Signes cliniques: ${formatListValue(record.clinicalSigns as string[] | null)}`);
-    doc.text(`Durée des symptômes: ${formatTextValue(record.duration)}`);
-    doc.text(`Niveau d'inquiétude: ${formatTextValue(record.worryLevel)}`);
-    doc.moveDown();
+    const addKeyValue = (label: string, value: string) => {
+      doc.font('Helvetica-Bold').fillColor(darkContrast).text(`${label} `, { continued: true });
+      doc.font('Helvetica').fillColor('#111111').text(value);
+      doc.moveDown(0.2);
+    };
 
-    doc.font('Helvetica-Bold').text('Actions et notes');
-    doc.font('Helvetica').text(`Actions entreprises: ${formatListValue(record.actionsTaken as string[] | null)}`);
-    doc.text(`Message complémentaire: ${formatTextValue(record.additionalNotes)}`);
+    const addBulletList = (label: string, items: string[]) => {
+      doc.font('Helvetica-Bold').fillColor(darkContrast).text(label);
+      if (items.length === 0) {
+        doc.font('Helvetica').fillColor('#111111').text('Non renseigné');
+      } else {
+        items.forEach((item) => {
+          doc.font('Helvetica').fillColor('#111111').text(`• ${item}`, { indent: 14 });
+        });
+      }
+      doc.moveDown(0.2);
+    };
+
+    doc.font('Helvetica').fontSize(11).lineGap(2).fillColor('#111111');
+
+    doc.font('Helvetica-Bold').fontSize(20).fillColor(darkContrast).text('PediGuide', { align: 'center' });
+    doc.font('Helvetica').fontSize(13).fillColor(darkContrast).text('Compte rendu pré-consultation', { align: 'center' });
+    doc.moveDown(0.6);
+    drawSectionSeparator(doc, primaryTeal, pageLeft, pageRight);
+    doc.moveDown(0.8);
+
+    const metaTop = doc.y;
+    const columnGap = 24;
+    const columnWidth = (pageWidth - columnGap) / 2;
+    const recordedDate = formatDate(record.createdAt ? new Date(record.createdAt) : new Date());
+
+    doc.font('Helvetica').fontSize(9).fillColor(mutedGray).text('Identifiant', pageLeft, metaTop, { width: columnWidth });
+    doc.font('Helvetica-Bold').fontSize(11).fillColor(darkContrast).text(record.id ?? id, pageLeft, metaTop + 12, { width: columnWidth });
+
+    doc.font('Helvetica').fontSize(9).fillColor(mutedGray).text('Date', pageLeft + columnWidth + columnGap, metaTop, { width: columnWidth });
+    doc.font('Helvetica-Bold').fontSize(11).fillColor(darkContrast).text(recordedDate, pageLeft + columnWidth + columnGap, metaTop + 12, { width: columnWidth });
+
+    doc.y = metaTop + 32;
+    doc.moveDown(0.4);
+    drawSectionSeparator(doc, separatorGray, pageLeft, pageRight);
+    doc.moveDown(0.8);
+
+    addSectionTitle('Informations patient');
+    addKeyValue('Prénom:', formatTextValue(record.childFirstName));
+    addKeyValue('Date de naissance:', formatTextValue(record.childBirthDate));
+    addKeyValue('Motif de consultation:', formatTextValue(record.consultationReason));
+    drawSectionSeparator(doc, separatorGray, pageLeft, pageRight);
+    doc.moveDown(0.8);
+
+    addSectionTitle('Observations');
+    addBulletList('Changements de comportement:', normalizeList(record.behaviorChanges as string[] | null));
+    addBulletList('Signes cliniques:', normalizeList(record.clinicalSigns as string[] | null));
+    addKeyValue('Durée des symptômes:', formatTextValue(record.duration));
+    addKeyValue('Niveau d'inquiétude:', formatTextValue(record.worryLevel));
+    drawSectionSeparator(doc, separatorGray, pageLeft, pageRight);
+    doc.moveDown(0.8);
+
+    addSectionTitle('Actions et notes');
+    addBulletList('Actions entreprises:', normalizeList(record.actionsTaken as string[] | null));
+    addKeyValue('Message complémentaire:', formatTextValue(record.additionalNotes));
+
+    const footerNote = 'Ce document est généré automatiquement à partir du questionnaire de pré-consultation et ne remplace pas un avis médical.';
+    const range = doc.bufferedPageRange();
+
+    const startIndex = range.start || 0;
+    for (let i = startIndex; i < startIndex + range.count; i += 1) {
+      const pageNumber = i - startIndex + 1;
+      doc.switchToPage(i);
+      const currentLeft = doc.page.margins.left;
+      const currentRight = doc.page.width - doc.page.margins.right;
+      const currentWidth = currentRight - currentLeft;
+      const footerY = doc.page.height - doc.page.margins.bottom + 8;
+
+      doc
+        .strokeColor(separatorGray)
+        .lineWidth(0.5)
+        .moveTo(currentLeft, footerY - 8)
+        .lineTo(currentRight, footerY - 8)
+        .stroke();
+
+      doc
+        .font('Helvetica')
+        .fontSize(8)
+        .fillColor(mutedGray)
+        .text(footerNote, currentLeft, footerY, { width: currentWidth - 70, align: 'left' });
+
+      doc
+        .font('Helvetica')
+        .fontSize(8)
+        .fillColor(mutedGray)
+        .text(`Page ${pageNumber}/${range.count}`, currentRight - 60, footerY, { width: 60, align: 'right' });
+    }
 
     doc.end();
   } catch (error) {
