@@ -3,7 +3,6 @@ import { computed, nextTick, reactive, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Field, FieldError } from '@/components/ui/field'
 import { useDiagnosisFormStore } from '@/stores/diagnosisForm'
 import DiagnosisHeader from '@/pages/diagnosis/DiagnosisHeader.vue'
@@ -29,9 +28,6 @@ const step = ref(1)
 const isLoading = ref(false)
 const errorMessage = ref('')
 const stepAttempted = ref(false)
-const confirmationOpen = ref(false)
-const confirmationTitleRef = ref<HTMLElement | null>(null)
-const hasRedirected = ref(false)
 
 const progress = computed(() => (step.value / totalSteps) * 100)
 
@@ -193,22 +189,6 @@ const resetValidationState = () => {
   stepAttempted.value = false
 }
 
-const handleConfirmationClose = () => {
-  if (hasRedirected.value) return
-  hasRedirected.value = true
-  confirmationOpen.value = false
-  router.push('/')
-}
-
-const handleConfirmationOpenChange = (open: boolean) => {
-  confirmationOpen.value = open
-  if (open) {
-    hasRedirected.value = false
-    return
-  }
-  handleConfirmationClose()
-}
-
 const submitForm = async () => {
   errorMessage.value = ''
   const invalidStep = validateAllSteps()
@@ -239,7 +219,11 @@ const submitForm = async () => {
 
     formStore.reset()
     resetValidationState()
-    confirmationOpen.value = true
+    const submissionId = String(data.id || '')
+    if (!submissionId) {
+      throw new Error('Identifiant de soumission manquant')
+    }
+    await router.push(`/results/${submissionId}`)
   } catch (error) {
     console.error(error)
     errorMessage.value = "Une erreur est survenue lors de l'envoi."
@@ -251,14 +235,6 @@ const submitForm = async () => {
 watch(step, async () => {
   if (!stepAttempted.value) {
     await focusStepHeading()
-  }
-})
-
-watch(confirmationOpen, async (isOpen) => {
-  if (isOpen) {
-    hasRedirected.value = false
-    await nextTick()
-    confirmationTitleRef.value?.focus()
   }
 })
 </script>
@@ -359,23 +335,6 @@ watch(confirmationOpen, async (isOpen) => {
           </p>
         </form>
 
-        <Dialog :open="confirmationOpen" @update:open="handleConfirmationOpenChange">
-          <DialogContent :show-close-button="false" class="sm:max-w-md">
-            <DialogHeader class="space-y-3">
-              <DialogTitle ref="confirmationTitleRef" tabindex="-1">
-                Formulaire envoyé
-              </DialogTitle>
-              <DialogDescription aria-live="polite" class="text-sm text-muted-foreground">
-                Merci. Votre formulaire a bien été transmis. Pensez à apporter votre carnet de santé le jour du rendez-vous.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter class="mt-4">
-              <Button type="button" class="w-full sm:w-auto" @click="handleConfirmationClose">
-                Retour à l'accueil
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </section>
     </div>
   </div>
