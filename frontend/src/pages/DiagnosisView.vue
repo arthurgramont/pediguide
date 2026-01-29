@@ -241,7 +241,12 @@ watch(step, async () => {
             </Button>
             <span v-else aria-hidden="true"></span>
 
-            <Button v-if="step < totalSteps" type="button" @click="nextStep">
+            <Button
+              v-if="step < totalSteps"
+              type="button"
+              class="pg-btn-continue"
+              @click="nextStep"
+            >
               Continuer
             </Button>
 
