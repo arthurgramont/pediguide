@@ -90,7 +90,7 @@ onMounted(() => {
               name="search"
               type="search"
               autocomplete="off"
-              placeholder="Nom, prenom, identifiant ou motif"
+              placeholder="Prenom, identifiant ou motif"
             />
           </Field>
         </CardHeader>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import type { DoctorFormSummary, DoctorFormStatus } from '@/services/doctorFormsApi'
+import type { DoctorFormSummary } from '@/services/doctorFormsApi'
 
 const props = withDefaults(
   defineProps<{
@@ -32,18 +32,6 @@ const formatDate = (value: string) => {
   }).format(date)
 }
 
-const statusLabel: Record<DoctorFormStatus, string> = {
-  new: 'Nouveau',
-  in_review: 'En cours',
-  completed: 'Traite',
-}
-
-const statusClasses: Record<DoctorFormStatus, string> = {
-  new: 'bg-blue-100 text-blue-800',
-  in_review: 'bg-amber-100 text-amber-800',
-  completed: 'bg-emerald-100 text-emerald-800',
-}
-
 const handleRowSelect = (id: string) => {
   emit('select', id)
 }
@@ -62,8 +50,8 @@ const handleRowKeydown = (event: KeyboardEvent, id: string) => {
 </script>
 
 <template>
-  <div class="rounded-2xl border border-border/70 bg-background shadow-sm">
-    <div v-if="isLoading" class="px-6 py-10 text-center" aria-live="polite">
+  <div class="rounded-2xl border border-border/70 bg-background shadow-sm" :aria-busy="isLoading">
+    <div v-if="isLoading" class="px-6 py-10 text-center" aria-live="polite" role="status">
       <p class="text-sm text-muted-foreground">Chargement des formulaires...</p>
     </div>
 
@@ -71,7 +59,7 @@ const handleRowKeydown = (event: KeyboardEvent, id: string) => {
       <p class="text-sm text-destructive">{{ error }}</p>
     </div>
 
-    <div v-else-if="isEmpty" class="px-6 py-10 text-center">
+    <div v-else-if="isEmpty" class="px-6 py-10 text-center" aria-live="polite" role="status">
       <p class="text-sm text-muted-foreground">
         Aucun formulaire ne correspond a votre recherche.
       </p>
@@ -83,10 +71,8 @@ const handleRowKeydown = (event: KeyboardEvent, id: string) => {
         <thead class="border-b border-border/70 bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
           <tr>
             <th scope="col" class="px-6 py-3">Patient</th>
-            <th scope="col" class="px-6 py-3">Identifiant</th>
+            <th scope="col" class="px-6 py-3">Date</th>
             <th scope="col" class="px-6 py-3">Motif</th>
-            <th scope="col" class="px-6 py-3">Soumis le</th>
-            <th scope="col" class="px-6 py-3">Statut</th>
             <th scope="col" class="px-6 py-3 text-right">Action</th>
           </tr>
         </thead>
@@ -96,25 +82,16 @@ const handleRowKeydown = (event: KeyboardEvent, id: string) => {
             :key="form.id"
             role="link"
             tabindex="0"
-            :aria-label="`Ouvrir le formulaire de ${form.patientFirstName} ${form.patientLastName}`"
+            :aria-label="`Ouvrir le formulaire de ${form.patientFirstName || 'patient'}`"
             class="group cursor-pointer transition-colors hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             @click="handleRowSelect(form.id)"
             @keydown="handleRowKeydown($event, form.id)"
           >
             <td class="px-6 py-4 font-medium text-foreground">
-              {{ form.patientFirstName }} {{ form.patientLastName }}
+              {{ form.patientFirstName || 'Patient' }}
             </td>
-            <td class="px-6 py-4 text-muted-foreground">{{ form.patientIdentifier }}</td>
-            <td class="px-6 py-4 text-muted-foreground">{{ form.consultationReason }}</td>
             <td class="px-6 py-4 text-muted-foreground">{{ formatDate(form.submittedAt) }}</td>
-            <td class="px-6 py-4">
-              <span
-                class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
-                :class="statusClasses[form.status]"
-              >
-                {{ statusLabel[form.status] }}
-              </span>
-            </td>
+            <td class="px-6 py-4 text-muted-foreground">{{ form.consultationReason }}</td>
             <td class="px-6 py-4 text-right">
               <RouterLink
                 :to="`/dashboard/${form.id}`"
