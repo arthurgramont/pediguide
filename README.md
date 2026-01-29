@@ -1,4 +1,4 @@
-# 🏥 Pediguide
+# Pediguide
 
 > **Application de pré-diagnostic pédiatrique pour l'optimisation du parcours de soin.**
 
@@ -8,7 +8,7 @@ L'application est déployée et accessible ici : [pediguide-frontend.vercel.app]
 
 ---
 
-## 🛠 Stack Technique
+## Stack Technique
 
 Le projet est conçu comme un **monorepo** séparant clairement le frontend et le backend.
 
@@ -35,7 +35,7 @@ Le projet est conçu comme un **monorepo** séparant clairement le frontend et l
 
 ---
 
-## ✨ Fonctionnalités Clés
+## Fonctionnalités Clés
 
 - **Authentification Médecin** : Inscription et connexion sécurisée (RPPS, Email).
 - **Parcours de Diagnostic** : Formulaire multi-étapes (5 étapes) avec validation progressive.
@@ -44,7 +44,7 @@ Le projet est conçu comme un **monorepo** séparant clairement le frontend et l
 
 ---
 
-## 🚀 Installation et Démarrage (Local)
+## Installation et Démarrage (Local)
 
 ### Prérequis
 - **Git**
@@ -106,7 +106,7 @@ npm run dev
 
 ---
 
-## 🗄️ Base de données & Migrations
+## Base de données & Migrations
 
 Le projet utilise **Drizzle ORM**. Les schémas sont définis dans `backend/src/db/schema.ts`.
 
@@ -117,7 +117,7 @@ Commandes utiles (à exécuter dans `/backend`) :
 
 ---
 
-## ⚙️ CI/CD & Déploiement
+## CI/CD & Déploiement
 
 Le projet dispose d'un pipeline d'intégration continue via **GitHub Actions** (fichier `.github/workflows/pipeline.yml`).
 
@@ -136,7 +136,7 @@ git push origin v1.0.X
 
 ---
 
-## 📂 Structure du Projet
+## Structure du Projet
 
 ```
 .
