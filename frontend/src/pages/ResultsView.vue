@@ -99,12 +99,18 @@ const downloadPdf = async () => {
           >
             {{ isDownloading ? 'Téléchargement...' : 'Télécharger en PDF' }}
           </Button>
-          <p v-if="statusMessage" class="text-sm text-muted-foreground" role="status" aria-live="polite">
+          <p
+            v-if="statusMessage"
+            class="text-sm text-muted-foreground"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             {{ statusMessage }}
           </p>
         </div>
 
-        <p v-if="errorMessage" class="text-sm text-destructive" role="alert">
+        <p v-if="errorMessage" class="text-sm text-destructive" role="alert" aria-atomic="true">
           {{ errorMessage }}
         </p>
       </section>
