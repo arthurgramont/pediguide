@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import api from '@/services/api'
 
@@ -13,10 +13,13 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   statusChanged: [status: string]
+  refreshRequested: []
 }>()
 
 const isLoading = ref(false)
+const isRefreshing = ref(false)
 const error = ref<string | null>(null)
+let pollingInterval: ReturnType<typeof setInterval> | null = null
 
 const statusConfig = {
   verified: {
@@ -35,6 +38,73 @@ const statusConfig = {
     icon: '⏳',
   },
 }
+
+/**
+ * Request parent component to refresh profile data
+ */
+function refreshStatus() {
+  isRefreshing.value = true
+  emit('refreshRequested')
+  // Reset refreshing state after a short delay
+  setTimeout(() => {
+    isRefreshing.value = false
+  }, 1000)
+}
+
+/**
+ * Start auto-polling when status is pending
+ */
+function startPolling() {
+  if (pollingInterval) return // Already polling
+
+  pollingInterval = setInterval(() => {
+    console.log('🔄 [KYC] Auto-polling for status update...')
+    refreshStatus()
+  }, 5000) // Poll every 5 seconds
+}
+
+/**
+ * Stop auto-polling
+ */
+function stopPolling() {
+  if (pollingInterval) {
+    clearInterval(pollingInterval)
+    pollingInterval = null
+    console.log('⏹️ [KYC] Stopped auto-polling')
+  }
+}
+
+/**
+ * Watch for status changes to start/stop polling
+ */
+watch(() => props.kycStatus, (newStatus) => {
+  if (newStatus === 'pending') {
+    startPolling()
+  } else {
+    stopPolling()
+  }
+})
+
+/**
+ * Start polling on mount if status is pending
+ */
+onMounted(() => {
+  console.log('🔄 [KYC] Component mounted, checking if returning from Didit...')
+  // Request immediate refresh when component mounts (important when returning from Didit)
+  refreshStatus()
+
+  // Start polling if status is pending
+  if (props.kycStatus === 'pending') {
+    startPolling()
+  }
+})
+
+/**
+ * Clean up polling interval on unmount
+ */
+onUnmounted(() => {
+  stopPolling()
+})
 
 async function startVerification() {
   try {
@@ -81,13 +151,28 @@ async function startVerification() {
         sécurisé Didit.
       </p>
 
-      <Button
-        @click="startVerification"
-        :disabled="isLoading"
-        class="w-full sm:w-auto"
-      >
-        {{ isLoading ? 'Chargement...' : 'Vérifier mon identité' }}
-      </Button>
+      <div class="flex flex-wrap gap-2">
+        <Button
+          @click="startVerification"
+          :disabled="isLoading"
+          class="flex-1 sm:flex-none"
+        >
+          {{ isLoading ? 'Chargement...' : 'Vérifier mon identité' }}
+        </Button>
+
+        <Button
+          @click="refreshStatus"
+          :disabled="isRefreshing"
+          variant="outline"
+          class="flex-1 sm:flex-none"
+        >
+          {{ isRefreshing ? 'Actualisation...' : 'Actualiser le statut' }}
+        </Button>
+      </div>
+
+      <p class="text-xs text-gray-500">
+        Le statut se met à jour automatiquement toutes les 5 secondes
+      </p>
 
       <p v-if="error" class="text-sm text-red-600">
         {{ error }}

@@ -73,10 +73,15 @@ export async function startKyc(req: AuthRequest, res: Response): Promise<any> {
  */
 export async function handleWebhook(req: Request, res: Response): Promise<any> {
   try {
+    console.log('📥 [Webhook] Received webhook from Didit');
+    console.log('📥 [Webhook] Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('📥 [Webhook] Body:', JSON.stringify(req.body, null, 2));
+
     // Get signature from header
     const signature = req.headers['x-didit-signature'] as string;
 
     if (!signature) {
+      console.error('❌ [Webhook] Missing webhook signature');
       return res.status(401).json({
         error: 'Missing webhook signature',
       });
@@ -87,23 +92,27 @@ export async function handleWebhook(req: Request, res: Response): Promise<any> {
     const isValid = diditService.verifyWebhookSignature(signature, rawBody);
 
     if (!isValid) {
-      console.error('Invalid webhook signature');
+      console.error('❌ [Webhook] Invalid webhook signature');
       return res.status(403).json({
         error: 'Invalid signature',
       });
     }
 
+    console.log('✅ [Webhook] Signature verified successfully');
+
     // Extract webhook data
     const { status, vendor_data, session_id, verification_data } = req.body;
 
-    if (!vendor_data?.doctor_id) {
-      console.error('Missing doctor_id in webhook vendor_data');
+    // vendor_data is expected to be the doctor ID string directly
+    if (!vendor_data || typeof vendor_data !== 'string') {
+      console.error('❌ [Webhook] Missing doctor_id (vendor_data is not a string):', vendor_data);
       return res.status(400).json({
         error: 'Missing doctor_id in webhook data',
       });
     }
 
-    const doctorId = vendor_data.doctor_id;
+    const doctorId = vendor_data;
+    console.log(`🔍 [Webhook] Processing for doctor ID: ${doctorId}`);
 
     // Map Didit status to our KYC status
     let kycStatus: 'verified' | 'rejected' | 'pending';
@@ -123,6 +132,8 @@ export async function handleWebhook(req: Request, res: Response): Promise<any> {
     }
 
     // Update doctor KYC status in database
+    console.log(`💾 [Webhook] Updating database for doctor ${doctorId} with status: ${kycStatus}`);
+
     await db
       .update(doctors)
       .set({
@@ -136,14 +147,14 @@ export async function handleWebhook(req: Request, res: Response): Promise<any> {
       })
       .where(eq(doctors.id, doctorId));
 
-    console.log(`✅ KYC status updated for doctor ${doctorId}: ${kycStatus}`);
+    console.log(`✅ [Webhook] KYC status updated for doctor ${doctorId}: ${kycStatus}`);
 
     res.json({
       success: true,
       message: 'Webhook processed successfully',
     });
   } catch (error: any) {
-    console.error('Error handling webhook:', error);
+    console.error('❌ [Webhook] Error handling webhook:', error);
     res.status(500).json({
       error: 'Failed to process webhook',
       details: error.message,
