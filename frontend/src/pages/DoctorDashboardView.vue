@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   Card,
@@ -40,6 +40,14 @@ const loadForms = async () => {
 const handleSelect = (id: string) => {
   router.push(`/dashboard/${id}`)
 }
+
+const resultsLabel = computed(() => {
+  if (isLoading.value) return 'Chargement des formulaires.'
+  if (error.value) return 'Erreur de chargement.'
+  const count = forms.value.length
+  if (count === 0) return 'Aucun formulaire trouve.'
+  return `${count} formulaire${count > 1 ? 's' : ''} affiche${count > 1 ? 's' : ''}.`
+})
 
 watch(search, (value) => {
   window.clearTimeout(debounceTimer)
@@ -92,6 +100,9 @@ onMounted(() => {
               autocomplete="off"
               placeholder="Prenom, identifiant ou motif"
             />
+            <p class="text-xs text-muted-foreground" aria-live="polite">
+              {{ resultsLabel }}
+            </p>
           </Field>
         </CardHeader>
         <CardContent>
