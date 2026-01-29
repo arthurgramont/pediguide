@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ContainerUtil from '@/components/utils/ContainerUtil.vue'
 
-const updatedAt = '09/01/2026'
+const updatedAt = '29/01/2026'
 </script>
 
 <template>
@@ -18,34 +18,45 @@ const updatedAt = '09/01/2026'
       <section class="space-y-3">
         <h2 class="text-h3 font-semibold text-foreground">Éditeur du site</h2>
         <ul class="space-y-1 text-sm text-muted-foreground">
-          <li>Raison sociale : PediGuide (à compléter)</li>
-          <li>Adresse : (à compléter)</li>
-          <li>Contact : contact@pediguide.fr</li>
+          <li>Projet étudiant : équipe PediGuide (À compléter)</li>
+          <li>Établissement : À compléter</li>
+          <li>Responsable de publication : À compléter</li>
         </ul>
       </section>
 
       <section class="space-y-3">
         <h2 class="text-h3 font-semibold text-foreground">Hébergement</h2>
         <ul class="space-y-1 text-sm text-muted-foreground">
-          <li>Hébergeur : (à compléter)</li>
-          <li>Adresse : (à compléter)</li>
-          <li>Téléphone : (à compléter)</li>
+          <li>Hébergeur : À compléter</li>
+          <li>Adresse : À compléter</li>
+          <li>Téléphone : À compléter</li>
         </ul>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-h3 font-semibold text-foreground">Contact</h2>
+        <p class="text-sm text-muted-foreground">
+          Email de projet :
+          <a class="underline underline-offset-4" href="mailto:contact@pediguide.fr">contact@pediguide.fr</a>
+          (à compléter si besoin)
+        </p>
       </section>
 
       <section class="space-y-3">
         <h2 class="text-h3 font-semibold text-foreground">Propriété intellectuelle</h2>
         <p class="text-sm text-muted-foreground">
-          L’ensemble des contenus (textes, visuels, logos, composants) est la propriété de
-          PediGuide ou de ses partenaires. Toute reproduction non autorisée est interdite.
+          L'ensemble des contenus du prototype (textes, visuels, logos, composants) est la propriété
+          de l'équipe PediGuide ou de ses partenaires. Toute reproduction non autorisée est
+          interdite.
         </p>
       </section>
 
       <section class="space-y-3">
         <h2 class="text-h3 font-semibold text-foreground">Limitation de responsabilité</h2>
         <p class="text-sm text-muted-foreground">
-          PediGuide propose un service d’aide à la pré-consultation. Il ne remplace pas un avis
-          médical. En cas d’urgence, contactez les services compétents.
+          PediGuide est un prototype d'aide à la pré-consultation. Il ne constitue pas un
+          dispositif médical et ne remplace pas un avis médical. En cas d'urgence, contactez les
+          services compétents.
         </p>
       </section>
     </div>

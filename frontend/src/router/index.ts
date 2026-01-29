@@ -34,7 +34,8 @@ const router = createRouter({
       meta: { layout: 'main' },
     },
     {
-      path: '/politique-confidentialite',
+      path: '/confidentialite',
+      alias: '/politique-confidentialite',
       name: 'privacy-policy',
       component: () => import('@/pages/PrivacyPolicyView.vue'),
       meta: { layout: 'main' },
