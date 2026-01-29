@@ -51,22 +51,16 @@ export const validators: Record<FormFieldKey, (value: DiagnosisFormState[FormFie
   consent: (value) => (value ? null : "Merci de donner votre consentement avant l'envoi."),
 }
 
-export const requiredFieldsByStep: Record<number, FormFieldKey[]> = {
-  1: ['childFirstName', 'childLastName', 'childBirthDate', 'consultationReason'],
-  3: ['duration', 'worryLevel'],
-  5: ['consent'],
-}
-
 export const fieldIds: Record<FormFieldKey, string> = {
   childFirstName: 'child-first-name',
   childLastName: 'child-last-name',
   childBirthDate: 'child-birth-date',
   consultationReason: 'consultation-reason',
-  behaviorChanges: 'behavior-eat-less',
-  clinicalSigns: 'clinical-fever',
-  duration: 'duration-today',
-  worryLevel: 'worry-low',
-  actionsTaken: 'action-temperature',
+  behaviorChanges: 'behavior-changes',
+  clinicalSigns: 'clinical-signs',
+  duration: 'duration',
+  worryLevel: 'worry-level',
+  actionsTaken: 'actions-taken',
   additionalNotes: 'additional-notes',
   consent: 'consent-checkbox',
 }

@@ -87,6 +87,13 @@ watch(
           </RouterLink>
 
           <RouterLink
+            to="/form-editor"
+            class="rounded-md px-4 py-3 text-lg font-medium transition-colors hover:underline focus-visible:bg-muted focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            Éditer le formulaire
+          </RouterLink>
+
+          <RouterLink
             to="/profile"
             class="rounded-md px-4 py-3 text-lg font-medium transition-colors hover:underline focus-visible:bg-muted focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >

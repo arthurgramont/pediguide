@@ -36,7 +36,7 @@ async function handleSubmit(e: Event) {
     if (lowerError.includes('401') || lowerError.includes('invalid') || lowerError.includes('credentials')) {
       error.value = 'Email ou mot de passe incorrect'
     } else {
-      error.value = 'Erreur de connexion. Veuillez vérifier vos identifiants ou réessayer plus tard.'
+      error.value = 'Erreur de connexion. Veuillez vÃ©rifier vos identifiants ou rÃ©essayer plus tard.'
     }
   } finally {
     loading.value = false
@@ -47,7 +47,7 @@ async function handleSubmit(e: Event) {
 <template>
   <form @submit="handleSubmit">
     <FieldGroup>
-      <div v-if="error" class="rounded-md bg-red-50 p-3 text-sm text-red-800 mb-4">
+      <div v-if="error" class="rounded-md bg-red-50 p-3 text-sm text-red-800 mb-4" role="alert" aria-live="assertive" aria-atomic="true">
         {{ error }}
       </div>
 
@@ -88,10 +88,11 @@ async function handleSubmit(e: Event) {
           <RouterLink
             to="/register"
           >
-            Créer un compte
+            CrÃ©er un compte
           </RouterLink>
         </FieldDescription>
       </Field>
     </FieldGroup>
   </form>
 </template>
+

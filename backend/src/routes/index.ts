@@ -27,7 +27,8 @@ router.post('/', async (req: Request, res: Response) => {
             actionsTaken: (data.actionsTaken || []) as string[],
 
             // 5. Notes
-            additionalNotes: data.additionalNotes || ""
+            additionalNotes: data.additionalNotes || "",
+            doctorId: data.doctorId || null,
         }).returning({ id: diagnosis.id });
 
         console.log("✅ Sauvegardé avec succès, ID :", resultat[0].id);

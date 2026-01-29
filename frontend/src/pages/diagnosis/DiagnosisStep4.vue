@@ -1,11 +1,22 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import type { DiagnosisFormState } from '@/stores/diagnosisForm'
-import { FieldDescription, FieldLegend, FieldSet } from '@/components/ui/field'
-import { actionsOptions } from '@/pages/diagnosis/diagnosisOptions'
+import type { FormFieldKey } from '@/pages/diagnosis/diagnosisValidation'
+import { fieldIds } from '@/pages/diagnosis/diagnosisValidation'
+import { FieldDescription, FieldError, FieldLegend, FieldSet } from '@/components/ui/field'
+import type { FormConfigField } from '@/services/formConfigApi'
 
 defineProps<{
   form: DiagnosisFormState
+  fields: FormConfigField[]
+  errors: Partial<Record<FormFieldKey, string>>
+  shouldShowError: (field: FormFieldKey) => boolean
+  errorId: (field: FormFieldKey) => string
 }>()
+
+const resolveFieldId = (key: FormFieldKey, index: number) => {
+  const base = fieldIds[key] || key
+  return index === 0 ? base : `${base}-${index}`
+}
 </script>
 
 <template>
@@ -19,30 +30,45 @@ defineProps<{
       </p>
     </div>
 
-    <FieldSet>
+    <FieldSet
+      v-for="field in fields"
+      :key="field.key"
+      :aria-invalid="shouldShowError(field.key as FormFieldKey)"
+      :aria-describedby="shouldShowError(field.key as FormFieldKey) ? errorId(field.key as FormFieldKey) : undefined"
+    >
       <FieldLegend>
-        Actions déjà réalisées
-        <span class="text-xs text-muted-foreground">(facultatif)</span>
+        {{ field.label }}
+        <template v-if="field.required">
+          <span class="text-destructive" aria-hidden="true">*</span>
+          <span class="text-xs text-muted-foreground">(obligatoire)</span>
+        </template>
+        <span v-else class="text-xs text-muted-foreground">(facultatif)</span>
       </FieldLegend>
-      <FieldDescription>Plusieurs choix possibles.</FieldDescription>
+      <FieldDescription v-if="field.helpText">{{ field.helpText }}</FieldDescription>
       <div class="space-y-3">
         <label
-          v-for="option in actionsOptions"
-          :key="option.id"
-          :for="option.id"
+          v-for="(option, optionIndex) in field.options || []"
+          :key="`${field.key}-${optionIndex}`"
+          :for="resolveFieldId(field.key as FormFieldKey, optionIndex)"
           class="flex items-start gap-3 rounded-lg border border-border/70 bg-background p-3 transition-colors hover:bg-accent/60 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background"
         >
           <input
-            :id="option.id"
-            v-model="form.actionsTaken"
+            :id="resolveFieldId(field.key as FormFieldKey, optionIndex)"
+            v-model="form[field.key as FormFieldKey]"
             type="checkbox"
-            name="actionsTaken"
-            :value="option.label"
+            :name="String(field.key)"
+            :value="option.value"
+            :required="field.required"
             class="mt-0.5 h-4 w-4 rounded border-input accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           />
           <span class="text-sm text-foreground">{{ option.label }}</span>
         </label>
       </div>
+      <FieldError
+        v-if="shouldShowError(field.key as FormFieldKey)"
+        :id="errorId(field.key as FormFieldKey)"
+        :errors="[errors[field.key as FormFieldKey]]"
+      />
     </FieldSet>
   </section>
 </template>

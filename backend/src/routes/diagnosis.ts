@@ -52,7 +52,8 @@ diagnosisRouter.post('/', async (req: Request, res: Response) => {
       worryLevel: data.worryLevel,
       
       actionsTaken: (data.actionsTaken || []) as string[],
-      additionalNotes: data.additionalNotes || ""
+      additionalNotes: data.additionalNotes || "",
+      doctorId: data.doctorId || null,
     }).returning({ id: diagnosis.id });
 
     res.json({ success: true, id: result[0].id });
