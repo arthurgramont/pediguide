@@ -32,7 +32,10 @@ const profile = ref<DoctorProfile | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
-onMounted(async () => {
+/**
+ * Fetch profile data from API
+ */
+async function fetchProfile(silent = false) {
   // Check if user is authenticated
   if (!isAuthenticated()) {
     router.push('/login')
@@ -40,12 +43,17 @@ onMounted(async () => {
   }
 
   try {
-    isLoading.value = true
+    if (!silent || !profile.value) {
+      isLoading.value = true
+    }
+    error.value = null
+
+    console.log('🔄 [Profile] Fetching profile data...')
 
     // Fetch doctor profile from API
-    const response = await api.doctors.getMe() as { 
-      success: boolean; 
-      doctor?: DoctorProfile 
+    const response = await api.doctors.getMe() as {
+      success: boolean;
+      doctor?: DoctorProfile
     }
 
     if (response.success && response.doctor) {
@@ -57,10 +65,11 @@ onMounted(async () => {
         accountStatus: response.doctor.accountStatus || 'pending_validation',
         createdAt: response.doctor.createdAt,
       }
+      console.log('✅ [Profile] Profile data loaded, KYC status:', profile.value.kycStatus)
     }
   } catch (err: unknown) {
     const errorObj = err as Error;
-    console.error('Error fetching profile:', errorObj)
+    console.error('❌ [Profile] Error fetching profile:', errorObj)
     error.value = 'Impossible de charger le profil'
 
     // If unauthorized, redirect to login
@@ -71,6 +80,19 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
+}
+
+/**
+ * Handle refresh request from KYC component
+ */
+function handleRefreshRequested() {
+  console.log('🔄 [Profile] Refresh requested by KYC component')
+  fetchProfile(true)
+}
+
+onMounted(() => {
+  console.log('🔄 [Profile] Component mounted, fetching profile...')
+  fetchProfile()
 })
 
 function handleKycStatusChange(newStatus: string) {
@@ -142,6 +164,7 @@ function handleKycStatusChange(newStatus: string) {
             <KycVerification
               :kyc-status="profile.kycStatus"
               @status-changed="handleKycStatusChange"
+              @refresh-requested="handleRefreshRequested"
             />
           </div>
         </div>
