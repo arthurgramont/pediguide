@@ -3,6 +3,8 @@ import { computed, nextTick, reactive, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Field, FieldError } from '@/components/ui/field'
 import { useDiagnosisFormStore } from '@/stores/diagnosisForm'
 import DiagnosisHeader from '@/pages/diagnosis/DiagnosisHeader.vue'
 import DiagnosisStep1 from '@/pages/diagnosis/DiagnosisStep1.vue'
@@ -27,6 +29,9 @@ const step = ref(1)
 const isLoading = ref(false)
 const errorMessage = ref('')
 const stepAttempted = ref(false)
+const confirmationOpen = ref(false)
+const confirmationTitleRef = ref<HTMLElement | null>(null)
+const hasRedirected = ref(false)
 
 const progress = computed(() => (step.value / totalSteps) * 100)
 
@@ -50,10 +55,13 @@ const stepHeadingIds: Record<number, string> = {
   5: 'step-5-title',
 }
 
-const getValueForValidator = (field: FormFieldKey): string => {
+const getValueForValidator = (field: FormFieldKey): string | boolean => {
   const val = form.value[field]
   if (Array.isArray(val)) {
     return val.length > 0 ? 'filled' : ''
+  }
+  if (typeof val === 'boolean') {
+    return val
   }
   if (val === null || val === undefined) {
     return ''
@@ -175,6 +183,32 @@ const validateAllSteps = () => {
   return firstInvalidStep
 }
 
+const resetValidationState = () => {
+  for (const field in errors) {
+    delete errors[field as FormFieldKey]
+  }
+  for (const field in touched) {
+    delete touched[field as FormFieldKey]
+  }
+  stepAttempted.value = false
+}
+
+const handleConfirmationClose = () => {
+  if (hasRedirected.value) return
+  hasRedirected.value = true
+  confirmationOpen.value = false
+  router.push('/')
+}
+
+const handleConfirmationOpenChange = (open: boolean) => {
+  confirmationOpen.value = open
+  if (open) {
+    hasRedirected.value = false
+    return
+  }
+  handleConfirmationClose()
+}
+
 const submitForm = async () => {
   errorMessage.value = ''
   const invalidStep = validateAllSteps()
@@ -204,8 +238,8 @@ const submitForm = async () => {
     }
 
     formStore.reset()
-    alert('Dossier envoyé au médecin avec succès !')
-    router.push('/')
+    resetValidationState()
+    confirmationOpen.value = true
   } catch (error) {
     console.error(error)
     errorMessage.value = "Une erreur est survenue lors de l'envoi."
@@ -217,6 +251,14 @@ const submitForm = async () => {
 watch(step, async () => {
   if (!stepAttempted.value) {
     await focusStepHeading()
+  }
+})
+
+watch(confirmationOpen, async (isOpen) => {
+  if (isOpen) {
+    hasRedirected.value = false
+    await nextTick()
+    confirmationTitleRef.value?.focus()
   }
 })
 </script>
@@ -254,6 +296,40 @@ watch(step, async () => {
 
           <DiagnosisStep5 v-if="step === 5" :form="form" />
 
+          <div
+            v-if="step === totalSteps"
+            class="space-y-3 rounded-xl border border-border/70 bg-background/60 p-4"
+          >
+            <p class="text-sm font-medium text-foreground">Consentement</p>
+            <Field :data-invalid="shouldShowError('consent')" class="gap-2">
+              <label
+                for="consent-checkbox"
+                class="flex items-start gap-3 rounded-lg border border-border/70 bg-background p-3 transition-colors hover:bg-accent/60 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background"
+              >
+                <input
+                  id="consent-checkbox"
+                  v-model="form.consent"
+                  type="checkbox"
+                  name="consent"
+                  required
+                  class="mt-0.5 h-4 w-4 rounded border-input accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  :aria-invalid="Boolean(errors.consent)"
+                  :aria-describedby="shouldShowError('consent') ? errorId('consent') : undefined"
+                  @change="handleFieldChange('consent')"
+                />
+                <span class="text-sm text-foreground">
+                  Je consens à la transmission de ces informations au médecin afin de préparer la consultation.
+                  <span class="text-destructive" aria-hidden="true">*</span>
+                </span>
+              </label>
+              <FieldError
+                v-if="shouldShowError('consent')"
+                :id="errorId('consent')"
+                :errors="[errors.consent]"
+              />
+            </Field>
+          </div>
+
           <div class="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-6">
             <Button v-if="step > 1" type="button" variant="outline" @click="prevStep">
               Retour
@@ -282,6 +358,24 @@ watch(step, async () => {
             {{ errorMessage }}
           </p>
         </form>
+
+        <Dialog :open="confirmationOpen" @update:open="handleConfirmationOpenChange">
+          <DialogContent :show-close-button="false" class="sm:max-w-md">
+            <DialogHeader class="space-y-3">
+              <DialogTitle ref="confirmationTitleRef" tabindex="-1">
+                Formulaire envoyé
+              </DialogTitle>
+              <DialogDescription aria-live="polite" class="text-sm text-muted-foreground">
+                Merci. Votre formulaire a bien été transmis. Pensez à apporter votre carnet de santé le jour du rendez-vous.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter class="mt-4">
+              <Button type="button" class="w-full sm:w-auto" @click="handleConfirmationClose">
+                Retour à l'accueil
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </section>
     </div>
   </div>
