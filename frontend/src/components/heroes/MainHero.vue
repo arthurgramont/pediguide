@@ -40,10 +40,10 @@ import HeroUtil from "@/components/utils/HeroUtil.vue";
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 mt-4">
-          <Button size="lg">
+          <Button asChild size="lg">
             <RouterLink to="/diagnosis">Commencer mon diagnostic</RouterLink>
           </Button>
-          <Button variant="outline" size="lg">
+          <Button asChild variant="outline" size="lg">
             <RouterLink to="/login">Je suis médecin</RouterLink>
           </Button>
         </div>
