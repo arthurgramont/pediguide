@@ -4,7 +4,7 @@ services:
     container_name: pediguide-db
     environment:
       POSTGRES_USER: pediguide
-      POSTGRES_PASSWORD: root
+      POSTGRES_PASSWORD: pediguide
       POSTGRES_DB: pediguide
     ports:
       - "5432:5432"

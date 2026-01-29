@@ -1,79 +1,9 @@
 {
-  "id": "1b27db80-5531-4d60-b880-b67049b1e443",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
   "version": "7",
   "dialect": "postgresql",
-  "tables": {
-    "public.formulaires": {
-      "name": "formulaires",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "prenom_enfant": {
-          "name": "prenom_enfant",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "age": {
-          "name": "age",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sexe": {
-          "name": "sexe",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "symptomes": {
-          "name": "symptomes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "douleur": {
-          "name": "douleur",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email_parent": {
-          "name": "email_parent",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "telephone_parent": {
-          "name": "telephone_parent",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    }
-  },
+  "tables": {},
   "enums": {},
   "schemas": {},
   "sequences": {},
@@ -81,8 +11,11 @@
   "policies": {},
   "views": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
     "tables": {}
   }
 }
