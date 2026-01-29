@@ -11,6 +11,7 @@ router.post('/', async (req: Request, res: Response) => {
         const resultat = await db.insert(diagnosis).values({
             // 1. L'Enfant
             childFirstName: data.childFirstName,
+            childLastName: data.childLastName,
             childBirthDate: data.childBirthDate,
             consultationReason: data.consultationReason,
 

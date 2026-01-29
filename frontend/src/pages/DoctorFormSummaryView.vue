@@ -62,14 +62,14 @@ watch(formId, () => {
     <header class="flex flex-wrap items-center justify-between gap-4">
       <div class="space-y-2">
         <h1 id="doctor-form-summary-title" class="text-3xl font-semibold tracking-tight text-foreground">
-          Resume du formulaire
+          Résumé du formulaire
         </h1>
         <p class="text-muted-foreground">
           Consultez les informations transmises par le patient.
         </p>
       </div>
       <Button as-child variant="outline">
-        <RouterLink to="/dashboard">Retour au dashboard</RouterLink>
+        <RouterLink to="/dashboard">Retour au tableau de bord</RouterLink>
       </Button>
     </header>
 
@@ -85,7 +85,7 @@ watch(formId, () => {
       <Card v-else>
         <CardHeader>
           <CardTitle id="doctor-form-summary-section-title" as="h2">
-            Informations generales
+            Informations générales
           </CardTitle>
           <CardDescription>
             Soumis le {{ form ? formatDate(form.submittedAt) : '' }}
@@ -96,21 +96,27 @@ watch(formId, () => {
             <h3 class="text-base font-semibold text-foreground">Patient</h3>
             <dl class="grid gap-4 sm:grid-cols-2">
               <div>
-                <dt class="text-sm font-medium text-muted-foreground">Prenom</dt>
+                <dt class="text-sm font-medium text-muted-foreground">Prénom</dt>
                 <dd class="text-sm text-foreground">
-                  {{ form?.patientFirstName || 'Non renseigne' }}
+                  {{ form?.patientFirstName || 'Non renseigné' }}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-muted-foreground">Nom</dt>
+                <dd class="text-sm text-foreground">
+                  {{ form?.patientLastName || 'Non renseigné' }}
                 </dd>
               </div>
               <div>
                 <dt class="text-sm font-medium text-muted-foreground">Identifiant</dt>
                 <dd class="text-sm text-foreground">
-                  {{ form?.id || 'Non renseigne' }}
+                  {{ form?.id || 'Non renseigné' }}
                 </dd>
               </div>
               <div>
                 <dt class="text-sm font-medium text-muted-foreground">Date de naissance</dt>
                 <dd class="text-sm text-foreground">
-                  {{ form?.childBirthDate || 'Non renseigne' }}
+                  {{ form?.childBirthDate || 'Non renseigné' }}
                 </dd>
               </div>
             </dl>
@@ -119,7 +125,7 @@ watch(formId, () => {
           <section class="space-y-3">
             <h3 class="text-base font-semibold text-foreground">Motif de consultation</h3>
             <p class="text-sm text-foreground">
-              {{ form?.consultationReason || 'Non renseigne' }}
+              {{ form?.consultationReason || 'Non renseigné' }}
             </p>
           </section>
 
@@ -129,43 +135,43 @@ watch(formId, () => {
               <ul v-if="form?.clinicalSigns?.length" class="list-disc pl-5 text-sm text-foreground">
                 <li v-for="item in form?.clinicalSigns" :key="item">{{ item }}</li>
               </ul>
-              <p v-else class="text-sm text-muted-foreground">Aucun signe rapporte.</p>
+              <p v-else class="text-sm text-muted-foreground">Aucun signe rapporté.</p>
             </div>
 
             <div class="space-y-3">
-              <h3 class="text-base font-semibold text-foreground">Changements observes</h3>
+              <h3 class="text-base font-semibold text-foreground">Changements observés</h3>
               <ul v-if="form?.behaviorChanges?.length" class="list-disc pl-5 text-sm text-foreground">
                 <li v-for="item in form?.behaviorChanges" :key="item">{{ item }}</li>
               </ul>
-              <p v-else class="text-sm text-muted-foreground">Aucun changement indique.</p>
+              <p v-else class="text-sm text-muted-foreground">Aucun changement indiqué.</p>
             </div>
           </section>
 
           <section class="grid gap-6 md:grid-cols-2">
             <div class="space-y-3">
-              <h3 class="text-base font-semibold text-foreground">Duree</h3>
+              <h3 class="text-base font-semibold text-foreground">Durée</h3>
               <p class="text-sm text-foreground">
-                {{ form?.duration || 'Non renseigne' }}
+                {{ form?.duration || 'Non renseigné' }}
               </p>
             </div>
             <div class="space-y-3">
-              <h3 class="text-base font-semibold text-foreground">Niveau de preoccupation</h3>
+              <h3 class="text-base font-semibold text-foreground">Niveau de préoccupation</h3>
               <p class="text-sm text-foreground">
-                {{ form?.worryLevel || 'Non renseigne' }}
+                {{ form?.worryLevel || 'Non renseigné' }}
               </p>
             </div>
           </section>
 
           <section class="space-y-3">
-            <h3 class="text-base font-semibold text-foreground">Actions deja prises</h3>
+            <h3 class="text-base font-semibold text-foreground">Actions déjà prises</h3>
             <ul v-if="form?.actionsTaken?.length" class="list-disc pl-5 text-sm text-foreground">
               <li v-for="item in form?.actionsTaken" :key="item">{{ item }}</li>
             </ul>
-            <p v-else class="text-sm text-muted-foreground">Aucune action indiquee.</p>
+            <p v-else class="text-sm text-muted-foreground">Aucune action indiquée.</p>
           </section>
 
           <section class="space-y-3">
-            <h3 class="text-base font-semibold text-foreground">Notes complementaires</h3>
+            <h3 class="text-base font-semibold text-foreground">Notes complémentaires</h3>
             <p class="text-sm text-foreground">
               {{ form?.additionalNotes || 'Aucune note' }}
             </p>

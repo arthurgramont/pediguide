@@ -45,8 +45,8 @@ const resultsLabel = computed(() => {
   if (isLoading.value) return 'Chargement des formulaires.'
   if (error.value) return 'Erreur de chargement.'
   const count = forms.value.length
-  if (count === 0) return 'Aucun formulaire trouve.'
-  return `${count} formulaire${count > 1 ? 's' : ''} affiche${count > 1 ? 's' : ''}.`
+  if (count === 0) return 'Aucun formulaire trouvé.'
+  return `${count} formulaire${count > 1 ? 's' : ''} affiché${count > 1 ? 's' : ''}.`
 })
 
 watch(search, (value) => {
@@ -69,7 +69,7 @@ onMounted(() => {
   <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 py-10">
     <header class="space-y-2">
       <h1 id="doctor-dashboard-title" class="text-3xl font-semibold tracking-tight text-foreground">
-        Dashboard medecin
+        Tableau de bord médecin
       </h1>
       <p class="text-muted-foreground">
         Retrouvez les formulaires transmis par vos patients.
@@ -82,10 +82,10 @@ onMounted(() => {
           <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <CardTitle id="doctor-dashboard-section-title" as="h2" class="text-xl">
-                Formulaires recus
+                Formulaires reçus
               </CardTitle>
               <CardDescription>
-                Cliquez sur une ligne pour consulter le resume.
+                Cliquez sur une ligne pour consulter le résumé.
               </CardDescription>
             </div>
           </div>
@@ -98,7 +98,7 @@ onMounted(() => {
               name="search"
               type="search"
               autocomplete="off"
-              placeholder="Prenom, identifiant ou motif"
+              placeholder="Prénom, nom, identifiant ou motif"
             />
             <p class="text-xs text-muted-foreground" aria-live="polite">
               {{ resultsLabel }}

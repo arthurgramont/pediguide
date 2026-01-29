@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 
 export type DiagnosisFormState = {
   childFirstName: string
+  childLastName: string
   childBirthDate: string
   consultationReason: string
   behaviorChanges: string[]
@@ -16,6 +17,7 @@ export type DiagnosisFormState = {
 
 const createFormState = (): DiagnosisFormState => ({
   childFirstName: '',
+  childLastName: '',
   childBirthDate: '',
   consultationReason: '',
   behaviorChanges: [],

@@ -35,8 +35,7 @@ import HeroUtil from "@/components/utils/HeroUtil.vue";
 
         <p class="text-body-lg lg:text-h5 leading-relaxed text-text-muted max-w-xl">
           Accompagnez la santé de votre enfant en toute sérénité. PediGuide vous aide à identifier
-          les symptômes, suivre l'évolution et obtenir des conseils adaptés pour prendre les bonnes
-          décisions au bon moment.
+          les symptômes, faciliter le rendez-vous médical, et vous faire gagner du temps. 
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 mt-4">

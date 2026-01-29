@@ -67,7 +67,7 @@ watch(
       <template v-if="isDoctorAuthenticated">
         <NavigationMenuItem>
           <NavigationMenuLink as-child>
-            <RouterLink to="/dashboard">Dashboard</RouterLink>
+            <RouterLink to="/dashboard">Tableau de bord</RouterLink>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
@@ -82,7 +82,7 @@ watch(
               class="rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               @click="handleLogout"
             >
-              Deconnexion
+              Déconnexion
             </button>
           </NavigationMenuLink>
         </NavigationMenuItem>
@@ -96,7 +96,7 @@ watch(
               heightClass="h-6"
               colorClass="text-foreground transition-colors"
             />
-            Vous etes medecin ?
+            Vous êtes médecin ?
           </RouterLink>
         </NavigationMenuLink>
       </NavigationMenuItem>

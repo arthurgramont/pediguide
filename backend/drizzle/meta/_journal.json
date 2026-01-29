@@ -15,6 +15,13 @@
       "when": 1769699387376,
       "tag": "0001_nifty_harpoon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769711235503,
+      "tag": "0002_gorgeous_sebastian_shaw",
+      "breakpoints": true
     }
   ]
 }

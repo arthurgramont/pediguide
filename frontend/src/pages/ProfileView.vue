@@ -81,7 +81,7 @@ function handleKycStatusChange(newStatus: string) {
 </script>
 
 <template>
-  <div :class="cn('flex flex-col gap-6', props.class)">
+  <div :class="cn('flex flex-col gap-6 mt-16', props.class)">
     <Card>
       <CardHeader>
         <CardTitle as="h1">Mon Profil</CardTitle>

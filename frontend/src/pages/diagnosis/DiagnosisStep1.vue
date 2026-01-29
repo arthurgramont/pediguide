@@ -56,6 +56,32 @@ const emit = defineEmits<{
         />
       </Field>
 
+      <Field :data-invalid="shouldShowError('childLastName')">
+        <FieldLabel for="child-last-name">
+          Nom de l'enfant
+          <span class="text-destructive" aria-hidden="true">*</span>
+          <span class="text-xs text-muted-foreground">(obligatoire)</span>
+        </FieldLabel>
+        <Input
+          id="child-last-name"
+          v-model="form.childLastName"
+          type="text"
+          name="childLastName"
+          autocomplete="family-name"
+          required
+          :aria-invalid="Boolean(errors.childLastName)"
+          :aria-describedby="shouldShowError('childLastName') ? errorId('childLastName') : undefined"
+          placeholder="Ex : Dupont"
+          @blur="emit('field-blur', 'childLastName')"
+          @input="emit('field-input', 'childLastName')"
+        />
+        <FieldError
+          v-if="shouldShowError('childLastName')"
+          :id="errorId('childLastName')"
+          :errors="[errors.childLastName]"
+        />
+      </Field>
+
       <Field :data-invalid="shouldShowError('childBirthDate')">
         <FieldLabel for="child-birth-date">
           Date de naissance

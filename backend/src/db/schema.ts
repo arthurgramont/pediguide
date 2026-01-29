@@ -5,6 +5,7 @@ export const diagnosis = pgTable('formulaires', {
   createdAt: timestamp('created_at').defaultNow(),
 
   childFirstName: text('child_first_name').notNull(),
+  childLastName: text('child_last_name').notNull(),
   childBirthDate: text('child_birth_date').notNull(),
   consultationReason: text('consultation_reason').notNull(),
 

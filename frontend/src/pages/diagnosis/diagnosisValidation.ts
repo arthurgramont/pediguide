@@ -28,6 +28,10 @@ export const validators: Record<FormFieldKey, (value: DiagnosisFormState[FormFie
     const trimmed = normalizeText(String(value))
     return trimmed ? null : "Le prénom de l'enfant est requis."
   },
+  childLastName: (value) => {
+    const trimmed = normalizeText(String(value))
+    return trimmed ? null : "Le nom de l'enfant est requis."
+  },
   childBirthDate: (value) => validateBirthDate(String(value)),
   consultationReason: (value) => {
     const trimmed = normalizeText(String(value))
@@ -48,13 +52,14 @@ export const validators: Record<FormFieldKey, (value: DiagnosisFormState[FormFie
 }
 
 export const requiredFieldsByStep: Record<number, FormFieldKey[]> = {
-  1: ['childFirstName', 'childBirthDate', 'consultationReason'],
+  1: ['childFirstName', 'childLastName', 'childBirthDate', 'consultationReason'],
   3: ['duration', 'worryLevel'],
   5: ['consent'],
 }
 
 export const fieldIds: Record<FormFieldKey, string> = {
   childFirstName: 'child-first-name',
+  childLastName: 'child-last-name',
   childBirthDate: 'child-birth-date',
   consultationReason: 'consultation-reason',
   behaviorChanges: 'behavior-eat-less',

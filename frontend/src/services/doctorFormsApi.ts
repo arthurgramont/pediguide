@@ -4,6 +4,7 @@ export interface DiagnosisRecord {
   id: string
   createdAt: string
   childFirstName: string
+  childLastName: string
   childBirthDate: string
   consultationReason: string
   behaviorChanges?: string[] | null
@@ -18,6 +19,7 @@ export interface DiagnosisRecord {
 export interface DoctorFormSummary {
   id: string
   patientFirstName: string
+  patientLastName: string
   consultationReason: string
   submittedAt: string
   status: string
@@ -48,6 +50,7 @@ const safeArray = (value?: string[] | null) => (Array.isArray(value) ? value : [
 const toSummary = (record: DiagnosisRecord): DoctorFormSummary => ({
   id: record.id,
   patientFirstName: record.childFirstName,
+  patientLastName: record.childLastName,
   consultationReason: record.consultationReason,
   submittedAt: record.createdAt,
   status: record.status ?? 'new',
@@ -69,6 +72,7 @@ const matchesSearch = (record: DiagnosisRecord, search: string) => {
   const normalized = normalizeText(search)
   const fields = [
     record.childFirstName,
+    record.childLastName,
     record.consultationReason,
     record.id,
   ]

@@ -61,7 +61,7 @@ const handleRowKeydown = (event: KeyboardEvent, id: string) => {
 
     <div v-else-if="isEmpty" class="px-6 py-10 text-center" aria-live="polite" role="status">
       <p class="text-sm text-muted-foreground">
-        Aucun formulaire ne correspond a votre recherche.
+        Aucun formulaire ne correspond à votre recherche.
       </p>
     </div>
 
@@ -89,6 +89,7 @@ const handleRowKeydown = (event: KeyboardEvent, id: string) => {
           >
             <td class="px-6 py-4 font-medium text-foreground">
               {{ form.patientFirstName || 'Patient' }}
+              {{ form.patientLastName || 'Patient' }}
             </td>
             <td class="px-6 py-4 text-muted-foreground">{{ formatDate(form.submittedAt) }}</td>
             <td class="px-6 py-4 text-muted-foreground">{{ form.consultationReason }}</td>
