@@ -58,7 +58,7 @@ const getValueForValidator = (field: FormFieldKey): string => {
   if (val === null || val === undefined) {
     return ''
   }
-  return val as string
+  return String(val)
 }
 
 const shouldShowError = (field: FormFieldKey) => Boolean(errors[field])
@@ -67,7 +67,7 @@ const shouldShowError = (field: FormFieldKey) => Boolean(errors[field])
 const setFieldError = (field: FormFieldKey) => {
   const validator = validators[field]
   const valToValidate = getValueForValidator(field)
-  const error = validator(valToValidate)
+  const error = validator(valToValidate as string)
   if (error) {
     errors[field] = error
   } else {
@@ -97,7 +97,7 @@ const validateStep = (currentStep: number) => {
 
   requiredFields.forEach((field) => {
     const valToValidate = getValueForValidator(field)
-    const error = validators[field](valToValidate)
+    const error = validators[field](valToValidate as string)
     if (error) {
       errors[field] = error
       isValid = false
@@ -112,8 +112,8 @@ const validateStep = (currentStep: number) => {
 const focusField = async (field: FormFieldKey) => {
   await nextTick()
   const elementId = fieldIds[field]
-  if (!elementId) return 
-  const element = document.getElementById(elementId)
+  if (!elementId || typeof elementId !== 'string') return 
+  const element = document.getElementById(elementId as string)
   if (element instanceof HTMLElement) {
     element.focus()
     element.scrollIntoView({ block: 'center' })
