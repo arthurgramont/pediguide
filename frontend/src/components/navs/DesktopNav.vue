@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -11,6 +11,7 @@ import IconsUtil from '@/components/utils/IconsUtil.vue'
 import api, { isAuthenticated } from '@/services/api'
 
 const route = useRoute()
+const router = useRouter()
 const isDoctorAuthenticated = ref(false)
 
 const resolveDoctorAuth = async () => {
@@ -30,6 +31,12 @@ const resolveDoctorAuth = async () => {
     }
     isDoctorAuthenticated.value = false
   }
+}
+
+const handleLogout = () => {
+  api.auth.logout()
+  isDoctorAuthenticated.value = false
+  router.push('/login')
 }
 
 onMounted(() => {
@@ -66,6 +73,17 @@ watch(
         <NavigationMenuItem>
           <NavigationMenuLink as-child>
             <RouterLink to="/profile">Profil</RouterLink>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink as-child>
+            <button
+              type="button"
+              class="rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              @click="handleLogout"
+            >
+              Deconnexion
+            </button>
           </NavigationMenuLink>
         </NavigationMenuItem>
       </template>

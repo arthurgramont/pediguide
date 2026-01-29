@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import IconsUtil from '@/components/utils/IconsUtil.vue'
 import api, { isAuthenticated } from '@/services/api'
 
 const route = useRoute()
+const router = useRouter()
 const isDoctorAuthenticated = ref(false)
 
 const resolveDoctorAuth = async () => {
@@ -25,6 +26,12 @@ const resolveDoctorAuth = async () => {
     }
     isDoctorAuthenticated.value = false
   }
+}
+
+const handleLogout = () => {
+  api.auth.logout()
+  isDoctorAuthenticated.value = false
+  router.push('/login')
 }
 
 onMounted(() => {
@@ -85,6 +92,13 @@ watch(
           >
             Profil
           </RouterLink>
+          <button
+            type="button"
+            class="rounded-md px-4 py-3 text-lg font-medium transition-colors hover:underline focus-visible:bg-muted focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-left"
+            @click="handleLogout"
+          >
+            Deconnexion
+          </button>
         </template>
 
         <RouterLink
