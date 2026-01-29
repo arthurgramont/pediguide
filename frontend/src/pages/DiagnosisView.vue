@@ -55,7 +55,8 @@ const shouldShowError = (field: FormFieldKey) => Boolean(errors[field])
 
 const setFieldError = (field: FormFieldKey) => {
   const validator = validators[field]
-  const error = validator(form.value[field])
+  const val = form.value[field]
+  const error = validator(typeof val === 'string' ? val : (val || '') as string)
   if (error) {
     errors[field] = error
   } else {
@@ -84,7 +85,8 @@ const validateStep = (currentStep: number) => {
   let isValid = true
 
   requiredFields.forEach((field) => {
-    const error = validators[field](form.value[field])
+    const val = form.value[field]
+    const error = validators[field](typeof val === 'string' ? val : (val || '') as string)
     if (error) {
       errors[field] = error
       isValid = false
