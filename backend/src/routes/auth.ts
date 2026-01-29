@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 
 export const authRouter = Router();
 
-authRouter.post('/register', async (req: Request, res: Response): Promise<any> => {
+authRouter.post('/register', async (req: Request, res: Response) => {
   try {
     const { rpps, email, password, cpsCardUrl } = req.body;
 
@@ -21,7 +21,8 @@ authRouter.post('/register', async (req: Request, res: Response): Promise<any> =
 
     res.json({ success: true, doctor: result[0] });
 
-  } catch (error: any) {
+  } catch (err) {
+    const error = err as { code?: string, message?: string };
     console.error("Erreur inscription:", error);
     if (error?.code === '23505') { 
         return res.status(400).json({ error: "Ce numéro RPPS ou cet email est déjà utilisé." });
