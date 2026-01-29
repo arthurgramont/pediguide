@@ -158,6 +158,22 @@ export const api = {
       return apiFetch('/diagnosis');
     },
   },
+  formConfig: {
+    get: async () => {
+      return apiFetch('/form-config');
+    },
+  },
+  doctorFormConfig: {
+    get: async () => {
+      return apiFetch('/doctor/form-config');
+    },
+    update: async (payload: unknown) => {
+      return apiFetch('/doctor/form-config', {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+    },
+  },
 
   /**
    * KYC endpoints

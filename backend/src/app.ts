@@ -8,6 +8,7 @@ import { diagnosisRouter } from './routes/diagnosis';
 import { authRouter } from './routes/auth';
 import { kycRouter } from './routes/kyc';
 import { doctorsRouter } from './routes/doctors';
+import { doctorFormConfigRouter, formConfigRouter } from './routes/formConfig';
 
 console.log("🔄 Initialisation du serveur...");
 
@@ -33,6 +34,8 @@ app.use('/api/diagnosis', diagnosisRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/kyc', kycRouter);
 app.use('/api/doctors', doctorsRouter);
+app.use('/api/form-config', formConfigRouter);
+app.use('/api/doctor/form-config', doctorFormConfigRouter);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
