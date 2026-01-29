@@ -50,13 +50,24 @@ const stepHeadingIds: Record<number, string> = {
   5: 'step-5-title',
 }
 
+const getValueForValidator = (field: FormFieldKey): string => {
+  const val = form.value[field]
+  if (Array.isArray(val)) {
+    return val.length > 0 ? 'filled' : ''
+  }
+  if (val === null || val === undefined) {
+    return ''
+  }
+  return val as string
+}
+
 const shouldShowError = (field: FormFieldKey) => Boolean(errors[field])
   && (touched[field] || stepAttempted.value)
 
 const setFieldError = (field: FormFieldKey) => {
   const validator = validators[field]
-  const val = form.value[field]
-  const error = validator(typeof val === 'string' ? val : (val || '') as string)
+  const valToValidate = getValueForValidator(field)
+  const error = validator(valToValidate)
   if (error) {
     errors[field] = error
   } else {
@@ -85,8 +96,8 @@ const validateStep = (currentStep: number) => {
   let isValid = true
 
   requiredFields.forEach((field) => {
-    const val = form.value[field]
-    const error = validators[field](typeof val === 'string' ? val : (val || '') as string)
+    const valToValidate = getValueForValidator(field)
+    const error = validators[field](valToValidate)
     if (error) {
       errors[field] = error
       isValid = false
@@ -100,7 +111,9 @@ const validateStep = (currentStep: number) => {
 
 const focusField = async (field: FormFieldKey) => {
   await nextTick()
-  const element = document.getElementById(fieldIds[field])
+  const elementId = fieldIds[field]
+  if (!elementId) return 
+  const element = document.getElementById(elementId)
   if (element instanceof HTMLElement) {
     element.focus()
     element.scrollIntoView({ block: 'center' })
