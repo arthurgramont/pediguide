@@ -18,18 +18,18 @@ const updatedAt = '29/01/2026'
       <section class="space-y-3">
         <h2 class="text-h3 font-semibold text-foreground">Éditeur du site</h2>
         <ul class="space-y-1 text-sm text-muted-foreground">
-          <li>Projet étudiant : équipe PediGuide (À compléter)</li>
-          <li>Établissement : À compléter</li>
-          <li>Responsable de publication : À compléter</li>
+          <li>Projet étudiant : équipe PediGuide</li>
+          <li>Établissement : IIM DIGITAL SCHOOL</li>
+          <li>Responsable de publication : Pédiguide</li>
         </ul>
       </section>
 
       <section class="space-y-3">
         <h2 class="text-h3 font-semibold text-foreground">Hébergement</h2>
         <ul class="space-y-1 text-sm text-muted-foreground">
-          <li>Hébergeur : À compléter</li>
-          <li>Adresse : À compléter</li>
-          <li>Téléphone : À compléter</li>
+          <li>Hébergeur : Vercel Inc</li>
+          <li>Adresse : 340 S Lemon Ave #4133 Walnut, CA 91789</li>
+          <li>Téléphone : (559) 288-7060</li>
         </ul>
       </section>
 
@@ -38,7 +38,6 @@ const updatedAt = '29/01/2026'
         <p class="text-sm text-muted-foreground">
           Email de projet :
           <a class="underline underline-offset-4" href="mailto:contact@pediguide.fr">contact@pediguide.fr</a>
-          (à compléter si besoin)
         </p>
       </section>
 
