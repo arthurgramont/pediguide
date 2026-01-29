@@ -3,7 +3,14 @@
  * Centralized HTTP client with authentication support
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+const normalizeApiBaseUrl = (url: string): string => {
+  const trimmed = url.replace(/\/+$/, '');
+  return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+};
+
+export const API_BASE_URL = normalizeApiBaseUrl(RAW_API_URL);
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
