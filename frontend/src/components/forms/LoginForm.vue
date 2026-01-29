@@ -1,47 +1,96 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import api from '@/services/api'
+
+const router = useRouter()
+
+const email = ref('')
+const password = ref('')
+const error = ref('')
+const loading = ref(false)
+
+async function handleSubmit(e: Event) {
+  e.preventDefault()
+  error.value = ''
+  loading.value = true
+
+  try {
+    const response = await api.auth.login(email.value, password.value)
+    
+    // Explicitly check success before redirecting
+    if (response) {
+       router.push('/profile')
+    }
+  } catch (err: any) {
+    console.error('Login error:', err)
+    
+    // Improve error messages for user
+    const errorMessage = err.message || ''
+    const lowerError = errorMessage.toLowerCase()
+    
+    if (lowerError.includes('401') || lowerError.includes('invalid') || lowerError.includes('credentials')) {
+      error.value = 'Email ou mot de passe incorrect'
+    } else {
+      error.value = 'Erreur de connexion. Veuillez vérifier vos identifiants ou réessayer plus tard.'
+    }
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
-  <form>
+  <form @submit="handleSubmit">
     <FieldGroup>
+      <div v-if="error" class="rounded-md bg-red-50 p-3 text-sm text-red-800 mb-4">
+        {{ error }}
+      </div>
+
       <Field>
         <FieldLabel for="email"> Email </FieldLabel>
         <Input
           id="email"
+          v-model="email"
           type="email"
           name="email"
           autocomplete="email"
-          placeholder="Enter your email"
+          placeholder="Entrez votre email"
           required
+          :disabled="loading"
         />
       </Field>
       <Field>
         <div class="flex items-center">
-          <FieldLabel for="password"> Password </FieldLabel>
+          <FieldLabel for="password"> Mot de passe </FieldLabel>
           <a href="#" class="ml-auto inline-block text-sm underline-offset-4 hover:underline">
-            Forgot your password?
+            Mot de passe oublié ?
           </a>
         </div>
         <Input
           id="password"
+          v-model="password"
           type="password"
           name="password"
           autocomplete="current-password"
-          placeholder="Enter your password"
+          placeholder="Entrez votre mot de passe"
           required
+          :disabled="loading"
         />
       </Field>
       <Field>
-        <Button type="submit"> Login </Button>
+        <Button type="submit" :disabled="loading">
+          {{ loading ? 'Connexion...' : 'Se connecter' }}
+        </Button>
         <FieldDescription class="text-center">
-          Don't have an account?
+          Pas encore de compte ?
           <RouterLink
             to="/register"
           >
-            Sign up
+            Créer un compte
           </RouterLink>
         </FieldDescription>
       </Field>

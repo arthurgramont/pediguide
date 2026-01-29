@@ -6,6 +6,8 @@ import cors from 'cors';
 
 import { diagnosisRouter } from './routes/diagnosis';
 import { authRouter } from './routes/auth';
+import { kycRouter } from './routes/kyc';
+import { doctorsRouter } from './routes/doctors';
 
 console.log("🔄 Initialisation du serveur...");
 
@@ -29,6 +31,8 @@ app.get('/ping', (req: Request, res: Response) => {
 // Routes API
 app.use('/api/diagnosis', diagnosisRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/kyc', kycRouter);
+app.use('/api/doctors', doctorsRouter);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

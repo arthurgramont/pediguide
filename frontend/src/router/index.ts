@@ -28,6 +28,12 @@ const router = createRouter({
       meta: { layout: 'main' },
     },
     {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/pages/ProfileView.vue'),
+      meta: { layout: 'main' },
+    },
+    {
       path: '/results/:id',
       name: 'results',
       component: () => import('@/pages/ResultsView.vue'),
