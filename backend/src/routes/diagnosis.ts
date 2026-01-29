@@ -26,7 +26,7 @@ diagnosisRouter.post('/', async (req: Request, res: Response) => {
 
     res.json({ success: true, id: result[0].id });
   } catch (error) {
-    console.error(error);
+    console.error("Détail de l'erreur", error);
     res.status(500).json({ error: "Erreur lors de l'enregistrement" });
   }
 });
@@ -36,6 +36,7 @@ diagnosisRouter.get('/', async (req: Request, res: Response) => {
     const list = await db.select().from(diagnosis).orderBy(desc(diagnosis.createdAt));
     res.json(list);
   } catch (error) {
+    console.error("Détail de l'erreur", error);
     res.status(500).json({ error: "Erreur lecture base de données" });
   }
 });

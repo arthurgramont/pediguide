@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, date, timestamp, json, integer } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, json } from 'drizzle-orm/pg-core';
 
 export const diagnosis = pgTable('formulaires', {
   id: uuid('id').defaultRandom().primaryKey(),

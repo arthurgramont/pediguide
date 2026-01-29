@@ -181,18 +181,18 @@ jobs:
           "${{ secrets.DISCORD_WEBHOOK_URL }}"
 
       - name: Send Failure Notification
-          if: ${{ needs.smoke-test.result != 'success' }}
-          run: |
-            curl -X POST -H "Content-Type: application/json" \
-            -d '{
-              "embeds": [{
-                "title": "❌ ${{ env.WF_TYPE }} Échoué",
-                "description": "**${{ env.WF_CONTEXT }}** sur `${{ env.REPO }}` par `${{ env.ACTOR }}`.",
-                "color": 15158332,
-                "fields": [
-                  { "name": "Statut", "value": "Échec" },
-                  { "name": "Lien vers le Run", "value": "${{ env.RUN_URL }}" }
-                ]
-              }]
-            }' \
-            "${{ secrets.DISCORD_WEBHOOK_URL }}"
+        if: ${{ needs.smoke-test.result != 'success' }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d '{
+            "embeds": [{
+              "title": "❌ ${{ env.WF_TYPE }} Échoué",
+              "description": "**${{ env.WF_CONTEXT }}** sur `${{ env.REPO }}` par `${{ env.ACTOR }}`.",
+              "color": 15158332,
+              "fields": [
+                { "name": "Statut", "value": "Échec" },
+                { "name": "Lien vers le Run", "value": "${{ env.RUN_URL }}" }
+              ]
+            }]
+          }' \
+          "${{ secrets.DISCORD_WEBHOOK_URL }}"
