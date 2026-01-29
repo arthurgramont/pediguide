@@ -28,10 +28,11 @@ const getFileNameFromDisposition = (headerValue: string | null) => {
   if (!headerValue) return ''
   const match = headerValue.match(/filename\*?=(?:UTF-8'')?\"?([^\";]+)\"?/i)
   if (!match) return ''
+  const filename = match[1] ?? ''
   try {
-    return decodeURIComponent(match[1])
+    return decodeURIComponent(filename)
   } catch {
-    return match[1]
+    return filename
   }
 }
 
