@@ -48,7 +48,9 @@ const loadForm = async () => {
   }
 }
 
-onMounted(loadForm)
+onMounted(() => {
+  loadForm()
+})
 
 watch(formId, () => {
   loadForm()
@@ -94,12 +96,6 @@ watch(formId, () => {
             <h3 class="text-base font-semibold text-foreground">Patient</h3>
             <dl class="grid gap-4 sm:grid-cols-2">
               <div>
-                <dt class="text-sm font-medium text-muted-foreground">Nom</dt>
-                <dd class="text-sm text-foreground">
-                  {{ form?.patientLastName || 'Non renseigne' }}
-                </dd>
-              </div>
-              <div>
                 <dt class="text-sm font-medium text-muted-foreground">Prenom</dt>
                 <dd class="text-sm text-foreground">
                   {{ form?.patientFirstName || 'Non renseigne' }}
@@ -108,7 +104,7 @@ watch(formId, () => {
               <div>
                 <dt class="text-sm font-medium text-muted-foreground">Identifiant</dt>
                 <dd class="text-sm text-foreground">
-                  {{ form?.patientIdentifier || 'Non renseigne' }}
+                  {{ form?.id || 'Non renseigne' }}
                 </dd>
               </div>
               <div>
