@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import {
   NavigationMenu,
@@ -8,15 +8,38 @@ import {
   NavigationMenuList,
 } from '@/components/ui/navigation-menu'
 import IconsUtil from '@/components/utils/IconsUtil.vue'
-import { isAuthenticated } from '@/services/api'
+import api, { isAuthenticated } from '@/services/api'
 
 const route = useRoute()
-const isDoctorAuthenticated = ref(isAuthenticated())
+const isDoctorAuthenticated = ref(false)
+
+const resolveDoctorAuth = async () => {
+  if (!isAuthenticated()) {
+    isDoctorAuthenticated.value = false
+    return
+  }
+
+  try {
+    await api.doctors.getMe()
+    isDoctorAuthenticated.value = true
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : ''
+    const isAuthError = message.includes('401') || message.includes('403')
+    if (isAuthError) {
+      api.auth.logout()
+    }
+    isDoctorAuthenticated.value = false
+  }
+}
+
+onMounted(() => {
+  void resolveDoctorAuth()
+})
 
 watch(
   () => route.fullPath,
   () => {
-    isDoctorAuthenticated.value = isAuthenticated()
+    void resolveDoctorAuth()
   },
 )
 </script>
