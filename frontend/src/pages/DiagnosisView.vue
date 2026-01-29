@@ -204,7 +204,7 @@ const submitForm = async () => {
   isLoading.value = true
 
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://pediguide-backend.vercel.app'
 
     const res = await fetch(`${apiUrl}/api/diagnosis`, {
       method: 'POST',
