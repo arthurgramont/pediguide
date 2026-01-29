@@ -146,6 +146,11 @@ export const api = {
       return apiFetch('/doctors/me');
     },
   },
+  diagnosis: {
+    list: async () => {
+      return apiFetch('/diagnosis');
+    },
+  },
 
   /**
    * KYC endpoints
