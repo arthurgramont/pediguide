@@ -37,7 +37,10 @@ onMounted(() => {
         </CardHeader>
         <CardContent class="flex flex-col gap-4">
           <div class="flex flex-col gap-3 sm:flex-row">
-            <Button asChild>
+            <Button
+              asChild
+              class="focus-visible:ring-4 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
               <RouterLink to="/">Retour à l’accueil</RouterLink>
             </Button>
             <Button type="button" variant="outline" @click="handleBack">
