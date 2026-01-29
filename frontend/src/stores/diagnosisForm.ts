@@ -11,6 +11,7 @@ export type DiagnosisFormState = {
   worryLevel: string
   actionsTaken: string[]
   additionalNotes: string
+  consent: boolean
 }
 
 const createFormState = (): DiagnosisFormState => ({
@@ -23,6 +24,7 @@ const createFormState = (): DiagnosisFormState => ({
   worryLevel: '',
   actionsTaken: [],
   additionalNotes: '',
+  consent: false,
 })
 
 export const useDiagnosisFormStore = defineStore('diagnosisForm', () => {

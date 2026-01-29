@@ -44,11 +44,13 @@ export const validators: Record<FormFieldKey, (value: DiagnosisFormState[FormFie
   worryLevel: (value) => (String(value) ? null : "Merci d'indiquer votre niveau d'inquiétude."),
   actionsTaken: () => null,
   additionalNotes: () => null,
+  consent: (value) => (value ? null : "Merci de donner votre consentement avant l'envoi."),
 }
 
 export const requiredFieldsByStep: Record<number, FormFieldKey[]> = {
   1: ['childFirstName', 'childBirthDate', 'consultationReason'],
   3: ['duration', 'worryLevel'],
+  5: ['consent'],
 }
 
 export const fieldIds: Record<FormFieldKey, string> = {
@@ -61,6 +63,7 @@ export const fieldIds: Record<FormFieldKey, string> = {
   worryLevel: 'worry-low',
   actionsTaken: 'action-temperature',
   additionalNotes: 'additional-notes',
+  consent: 'consent-checkbox',
 }
 
 export const errorId = (field: FormFieldKey) => `${fieldIds[field]}-error`
