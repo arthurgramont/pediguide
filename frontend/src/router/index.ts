@@ -51,6 +51,12 @@ const router = createRouter({
       component: () => import('@/pages/CookiesView.vue'),
       meta: { layout: 'main' },
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/pages/NotFoundView.vue'),
+      meta: { layout: 'main' },
+    },
   ],
 })
 
