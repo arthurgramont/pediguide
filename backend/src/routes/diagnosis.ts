@@ -41,6 +41,7 @@ diagnosisRouter.post('/', async (req: Request, res: Response) => {
     
     const result = await db.insert(diagnosis).values({
       childFirstName: data.childFirstName,
+      childLastName: data.childLastName,
       childBirthDate: data.childBirthDate,
       consultationReason: data.consultationReason,
       
@@ -154,6 +155,7 @@ diagnosisRouter.get('/:id/pdf', async (req: Request, res: Response) => {
 
     addSectionTitle('Informations patient');
     addKeyValue('Prénom :', formatTextValue(record.childFirstName));
+    addKeyValue('Nom :', formatTextValue(record.childLastName));
     addKeyValue('Date de naissance :', formatTextValue(record.childBirthDate));
     addKeyValue('Motif de consultation :', formatTextValue(record.consultationReason));
     drawSectionSeparator(doc, separatorGray, pageLeft, pageRight);

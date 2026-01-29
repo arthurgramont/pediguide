@@ -35,15 +35,23 @@ import HeroUtil from "@/components/utils/HeroUtil.vue";
 
         <p class="text-body-lg lg:text-h5 leading-relaxed text-text-muted max-w-xl">
           Accompagnez la santé de votre enfant en toute sérénité. PediGuide vous aide à identifier
-          les symptômes, suivre l'évolution et obtenir des conseils adaptés pour prendre les bonnes
-          décisions au bon moment.
+          les symptômes, faciliter le rendez-vous médical, et vous faire gagner du temps. 
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 mt-4">
-          <Button size="lg">
+          <Button
+            asChild
+            size="lg"
+            class="focus-visible:ring-4 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
             <RouterLink to="/diagnosis">Commencer mon diagnostic</RouterLink>
           </Button>
-          <Button variant="outline" size="lg">
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            class="focus-visible:ring-4 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
             <RouterLink to="/login">Je suis médecin</RouterLink>
           </Button>
         </div>
